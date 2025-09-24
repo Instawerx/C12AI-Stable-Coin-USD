@@ -1,6 +1,6 @@
 version: 1
-name: "Claude Code Template"
-slash_command: "/project:template"
+name: "C12USD Stablecoin Pilot"
+slash_command: "/project:c12usd"
 entry_task: "000_bootstrap.md"
 iteration_order:
   - "010_env_setup.md"
@@ -8,11 +8,11 @@ iteration_order:
   - "030_contract_scaffold.md"
   - "040_tests_and_ci.md"
   - "050_deployment_pipeline.md"
+  - "055_offchain_integration.md"
   - "060_frontend_integration.md"
   - "070_observability.md"
   - "080_custom_contract.md"
   - "090_backend_integration.md"
-  - "100_localisation.md"
   - "110_schema_design.md"
   - "120_frontend_completion.md"
   - "130_context_engineering.md"
