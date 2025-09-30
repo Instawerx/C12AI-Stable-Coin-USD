@@ -1,0 +1,269 @@
+rules_version = '2';
+
+// Enhanced Firestore Security Rules for C12USD Stablecoin
+// Comprehensive security with compliance, audit trails, and financial protections
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions for security and validation
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      return request.auth != null &&
+             ('admin' in request.auth.token && request.auth.token.admin == true);
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isOwnerOrAdmin(userId) {
+      return isOwner(userId) || isAdmin();
+    }
+
+    function hasRole(role) {
+      return isAuthenticated() &&
+             ('roles' in request.auth.token &&
+              role in request.auth.token.roles);
+    }
+
+    function isValidTransactionAmount(amount) {
+      return amount is number && amount > 0 && amount <= 1000000; // Max $1M
+    }
+
+    function isValidAddress(address) {
+      return address is string && address.size() == 42 && address[0:2] == "0x";
+    }
+
+    function isValidChain(chain) {
+      return chain in ['BSC', 'POLYGON', 'ETHEREUM', 'ARBITRUM'];
+    }
+
+    function isWithinRateLimit() {
+      // This would integrate with rate limiting in functions
+      return true; // Simplified for rules
+    }
+
+    function isNotBlacklisted() {
+      return !('blacklisted' in request.auth.token &&
+               request.auth.token.blacklisted == true);
+    }
+
+    function hasKYCIfRequired() {
+      return !('kyc_required' in request.auth.token) ||
+             request.auth.token.kyc_required == false ||
+             ('kyc_status' in request.auth.token &&
+              request.auth.token.kyc_status == 'APPROVED');
+    }
+
+    // User profiles and account data
+    match /users/{userId} {
+      allow read: if isOwnerOrAdmin(userId);
+      allow create: if isOwner(userId) &&
+                       isValidAddress(resource.data.address) &&
+                       resource.data.address == request.auth.token.address &&
+                       isNotBlacklisted();
+      allow update: if isOwnerOrAdmin(userId) &&
+                       // Prevent modification of critical fields by non-admins
+                       (!isAdmin() ? (
+                         !('status' in resource.data.diff()) &&
+                         !('kycStatus' in resource.data.diff()) &&
+                         !('riskScore' in resource.data.diff()) &&
+                         !('isBlacklisted' in resource.data.diff())
+                       ) : true);
+      allow delete: if isAdmin(); // Only admins can delete users
+    }
+
+    // User sessions for security tracking
+    match /user_sessions/{sessionId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid &&
+                       isNotBlacklisted();
+      allow update: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // KYC documents - strict access control
+    match /kyc_documents/{docId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid ||
+                      hasRole('kyc_reviewer') || isAdmin());
+      allow create: if isAuthenticated() &&
+                       resource.data.userId == request.auth.uid &&
+                       isNotBlacklisted();
+      allow update: if hasRole('kyc_reviewer') || isAdmin();
+      allow delete: if isAdmin(); // Only admins can delete KYC docs
+    }
+
+    // Mint receipts - users can read their own, create with validation
+    match /mint_receipts/{receiptId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isOwner(resource.data.userId) &&
+                       isValidTransactionAmount(resource.data.amount) &&
+                       isValidChain(resource.data.chain) &&
+                       hasKYCIfRequired() &&
+                       isNotBlacklisted() &&
+                       isWithinRateLimit();
+      allow update: if isAdmin() ||
+                       (isOwner(resource.data.userId) &&
+                        resource.data.status == 'PENDING'); // Only pending can be updated by user
+      allow delete: if isAdmin();
+    }
+
+    // Redeem receipts - similar to mint receipts
+    match /redeem_receipts/{receiptId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isOwner(resource.data.userId) &&
+                       isValidTransactionAmount(resource.data.amount) &&
+                       isValidChain(resource.data.chain) &&
+                       hasKYCIfRequired() &&
+                       isNotBlacklisted() &&
+                       isWithinRateLimit();
+      allow update: if isAdmin() ||
+                       (isOwner(resource.data.userId) &&
+                        resource.data.status == 'PENDING');
+      allow delete: if isAdmin();
+    }
+
+    // Transactions - read only for users, admin can manage
+    match /transactions/{transactionId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid ||
+                      resource.data.fromAddress == request.auth.token.address ||
+                      resource.data.toAddress == request.auth.token.address ||
+                      isAdmin());
+      allow create: if isAdmin() || hasRole('transaction_processor');
+      allow update: if isAdmin() || hasRole('transaction_processor');
+      allow delete: if isAdmin();
+    }
+
+    // Treasury operations - admin and treasury role only
+    match /treasury_operations/{operationId} {
+      allow read: if isAdmin() || hasRole('treasury_viewer');
+      allow create: if isAdmin() || hasRole('treasury_operator');
+      allow update: if isAdmin() || hasRole('treasury_operator');
+      allow delete: if isAdmin();
+    }
+
+    // Flash loan requests - users can manage their own
+    match /flash_loan_requests/{requestId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isOwner(resource.data.userId) &&
+                       isValidTransactionAmount(resource.data.amount) &&
+                       isValidChain(resource.data.chain) &&
+                       hasKYCIfRequired() &&
+                       isNotBlacklisted();
+      allow update: if isOwnerOrAdmin(resource.data.userId);
+      allow delete: if isOwnerOrAdmin(resource.data.userId);
+    }
+
+    // Cross-chain transfers - users can read their own
+    match /cross_chain_transfers/{transferId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if isOwner(resource.data.userId) &&
+                       isValidChain(resource.data.fromChain) &&
+                       isValidChain(resource.data.toChain) &&
+                       resource.data.fromChain != resource.data.toChain &&
+                       hasKYCIfRequired() &&
+                       isNotBlacklisted();
+      allow update: if isAdmin() || hasRole('bridge_operator');
+      allow delete: if isAdmin();
+    }
+
+    // Compliance checks - restricted access
+    match /compliance_checks/{checkId} {
+      allow read: if isAdmin() || hasRole('compliance_officer');
+      allow create: if isAdmin() || hasRole('compliance_officer') || hasRole('system');
+      allow update: if isAdmin() || hasRole('compliance_officer');
+      allow delete: if isAdmin();
+    }
+
+    // Reserve snapshots - public read for transparency, admin write
+    match /reserve_snapshots/{snapshotId} {
+      allow read: if true; // Public for transparency
+      allow create: if isAdmin() || hasRole('reserve_manager');
+      allow update: if isAdmin() || hasRole('reserve_manager');
+      allow delete: if isAdmin();
+    }
+
+    // System configuration - admin access only
+    match /system_config/{configId} {
+      allow read: if isAdmin() || hasRole('config_viewer');
+      allow create: if isAdmin();
+      allow update: if isAdmin() &&
+                       // Prevent modification of read-only configs
+                       (!('isReadOnly' in resource.data) ||
+                        resource.data.isReadOnly != true);
+      allow delete: if isAdmin();
+    }
+
+    // Rate limiting data - system access
+    match /rate_limits/{limitId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.identifier == request.auth.uid ||
+                      resource.data.identifier == request.auth.token.address ||
+                      isAdmin());
+      allow create: if hasRole('system') || isAdmin();
+      allow update: if hasRole('system') || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Audit logs - read only for admins
+    match /audit_logs/{logId} {
+      allow read: if isAdmin() || hasRole('auditor');
+      allow create: if true; // Allow system to create audit logs
+      allow update: if false; // Audit logs are immutable
+      allow delete: if false; // Audit logs should never be deleted
+    }
+
+    // Real-time transaction status updates
+    match /transaction_status/{statusId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if hasRole('system') || isAdmin();
+      allow update: if hasRole('system') || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Notifications and alerts
+    match /notifications/{notificationId} {
+      allow read: if isAuthenticated() &&
+                     (resource.data.userId == request.auth.uid || isAdmin());
+      allow create: if hasRole('system') || isAdmin();
+      allow update: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+      allow delete: if isAuthenticated() &&
+                       (resource.data.userId == request.auth.uid || isAdmin());
+    }
+
+    // System health and monitoring
+    match /system_health/{healthId} {
+      allow read: if isAdmin() || hasRole('monitor');
+      allow create: if hasRole('system') || isAdmin();
+      allow update: if hasRole('system') || isAdmin();
+      allow delete: if isAdmin();
+    }
+
+    // Security events and incidents
+    match /security_events/{eventId} {
+      allow read: if isAdmin() || hasRole('security_officer');
+      allow create: if hasRole('system') || isAdmin();
+      allow update: if isAdmin() || hasRole('security_officer');
+      allow delete: if false; // Security events should be permanent
+    }
+
+    // Default deny all other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

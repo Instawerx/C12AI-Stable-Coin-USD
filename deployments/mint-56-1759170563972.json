@@ -1,0 +1,11 @@
+{
+  "network": "BSC Mainnet",
+  "chainId": 56,
+  "tokenAddress": "0x6fa920C5c676ac15AF6360D9D755187a6C87bd58",
+  "treasuryAddress": "0x7903c63CB9f42284d03BC2a124474760f9C1390b",
+  "transactionHash": "0x79f99cb4b21a0bc926bd5ef9dcfe52ca450ee23218b8a74ce4fce1c8084cc564",
+  "blockNumber": 62895356,
+  "gasUsed": "76774",
+  "amountMinted": "100000000.0",
+  "timestamp": "2025-09-29T18:29:23.972Z"
+}

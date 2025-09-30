@@ -1,0 +1,64 @@
+rules_version = '2';
+
+// Cloud Storage Security Rules for C12USD Stablecoin
+service firebase.storage {
+  match /b/{bucket}/o {
+    // User profile images and documents
+    match /users/{userId}/{allPaths=**} {
+      allow read: if request.auth != null &&
+        (request.auth.uid == userId ||
+         request.auth.token.admin == true);
+      allow write: if request.auth != null &&
+        request.auth.uid == userId &&
+        resource.size < 5 * 1024 * 1024 && // 5MB limit
+        request.resource.contentType.matches('image/.*|application/pdf');
+    }
+
+    // KYC and compliance documents - admin access only
+    match /kyc/{userId}/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        request.auth.token.admin == true;
+    }
+
+    // Audit trail documents and compliance reports
+    match /audit/{year}/{month}/{allPaths=**} {
+      allow read: if request.auth != null &&
+        request.auth.token.admin == true;
+      allow create: if request.auth != null;
+    }
+
+    // Public documents (terms, privacy policy, etc.)
+    match /public/{allPaths=**} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        request.auth.token.admin == true;
+    }
+
+    // Proof of Reserve documents and attestations
+    match /por/{allPaths=**} {
+      allow read: if true; // Public read for transparency
+      allow write: if request.auth != null &&
+        request.auth.token.admin == true;
+    }
+
+    // Transaction receipts and confirmations
+    match /receipts/{userId}/{receiptId} {
+      allow read: if request.auth != null &&
+        (request.auth.uid == userId ||
+         request.auth.token.admin == true);
+      allow create: if request.auth != null &&
+        request.auth.uid == userId;
+    }
+
+    // Backup and disaster recovery files - admin only
+    match /backups/{allPaths=**} {
+      allow read, write: if request.auth != null &&
+        request.auth.token.admin == true;
+    }
+
+    // Default deny all other requests
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

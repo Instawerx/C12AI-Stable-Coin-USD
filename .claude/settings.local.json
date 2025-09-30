@@ -1,0 +1,16 @@
+{
+  "permissions": {
+    "allow": [
+      "SlashCommand(/infinite)",
+      "Bash(node:*)",
+      "Bash(npm:*)",
+      "Bash(pnpm:*)",
+      "Bash(npx hardhat:*)",
+      "Bash(npx prisma:*)",
+      "Bash(REPORT_GAS=true npm test)",
+      "Bash(chmod:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

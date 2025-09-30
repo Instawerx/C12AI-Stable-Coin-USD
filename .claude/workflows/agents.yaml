@@ -1,0 +1,30 @@
+version: 1
+agents:
+  - id: master
+    role: "Master Planner"
+    description: "Coordinates the overall project and plans tasks."
+    tools: [git, bash, node, docker]
+  - id: infra
+    role: "Infrastructure Engineer"
+    description: "Sets up cloud projects, IAM, networking, and deployment pipelines."
+    tools: [gcloud, firebase, bash, docker]
+  - id: contracts
+    role: "Smart Contracts Engineer"
+    description: "Develops and tests smart contracts."
+    tools: [node, bash]
+  - id: backend
+    role: "Backend Engineer"
+    description: "Builds server-side APIs and integrations."
+    tools: [node, bash, python]
+  - id: frontend
+    role: "Frontend Engineer"
+    description: "Creates the user interface and wallet connections."
+    tools: [node, bash]
+  - id: db
+    role: "Database Architect"
+    description: "Designs schemas, indexes, and rules for the data layer."
+    tools: [bash]
+  - id: sre
+    role: "SRE/Observability Engineer"
+    description: "Implements logging, monitoring, and alerting."
+    tools: [bash, gcloud]

@@ -1,0 +1,303 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Apple Glass Design System Base Styles */
+
+@layer base {
+  :root {
+    /* Color variables for theme switching */
+    --background-primary: rgba(248, 249, 250, 0.95);
+    --background-secondary: rgba(255, 255, 255, 0.8);
+    --text-primary: rgba(0, 0, 0, 0.9);
+    --text-secondary: rgba(0, 0, 0, 0.6);
+    --brand-primary: #007AFF;
+    --brand-secondary: #5856D6;
+    --surface-glass: rgba(255, 255, 255, 0.25);
+    --border-light: rgba(255, 255, 255, 0.3);
+  }
+
+  .dark {
+    --background-primary: rgba(28, 28, 30, 0.95);
+    --background-secondary: rgba(44, 44, 46, 0.8);
+    --text-primary: rgba(255, 255, 255, 0.9);
+    --text-secondary: rgba(255, 255, 255, 0.6);
+    --surface-glass: rgba(0, 0, 0, 0.25);
+    --border-light: rgba(255, 255, 255, 0.2);
+  }
+
+  /* Font Loading */
+  @font-face {
+    font-family: 'SF Pro Display';
+    src: url('https://developer.apple.com/fonts/SF-Pro-Display-Regular.woff2') format('woff2');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'SF Pro Display';
+    src: url('https://developer.apple.com/fonts/SF-Pro-Display-Medium.woff2') format('woff2');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'SF Pro Display';
+    src: url('https://developer.apple.com/fonts/SF-Pro-Display-Semibold.woff2') format('woff2');
+    font-weight: 600;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  /* Reset and base styles */
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    font-family: 'SF Pro Display', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    line-height: 1.6;
+    background: var(--background-primary);
+    color: var(--text-primary);
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Selection styles */
+  ::selection {
+    background: rgba(0, 122, 255, 0.2);
+    color: var(--text-primary);
+  }
+
+  ::-moz-selection {
+    background: rgba(0, 122, 255, 0.2);
+    color: var(--text-primary);
+  }
+
+  /* Scrollbar styles */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.2);
+    border-radius: 4px;
+    transition: background 0.2s ease;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(0, 0, 0, 0.3);
+  }
+
+  .dark ::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .dark ::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  /* Focus styles */
+  :focus {
+    outline: none;
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--brand-primary);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+@layer components {
+  /* Button variants */
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-lg transition-all duration-200 ease-out focus:outline-none focus:ring-2 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .btn-primary {
+    @apply btn bg-brand-gradient text-white border border-brand-primary/30 hover:shadow-lg hover:scale-[1.02] active:scale-[0.98] focus:ring-brand-primary/20;
+  }
+
+  .btn-secondary {
+    @apply btn glass-card text-text-primary dark:text-text-dark-primary hover:glass-elevated focus:ring-brand-primary/20;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-text-secondary dark:text-text-dark-secondary border-transparent hover:bg-surface-glass hover:text-text-primary dark:hover:text-text-dark-primary;
+  }
+
+  /* Input styles */
+  .input {
+    @apply w-full glass-card px-4 py-3 text-base text-text-primary dark:text-text-dark-primary placeholder-text-secondary dark:placeholder-text-dark-secondary transition-all duration-200 ease-out focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary;
+  }
+
+  /* Card styles */
+  .card {
+    @apply glass-card p-6;
+  }
+
+  .card-elevated {
+    @apply glass-elevated p-6;
+  }
+
+  /* Badge styles */
+  .badge {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .badge-primary {
+    @apply badge bg-brand-primary/10 text-brand-primary border border-brand-primary/20;
+  }
+
+  .badge-success {
+    @apply badge bg-brand-success/10 text-brand-success border border-brand-success/20;
+  }
+
+  .badge-warning {
+    @apply badge bg-brand-warning/10 text-brand-warning border border-brand-warning/20;
+  }
+
+  .badge-error {
+    @apply badge bg-brand-error/10 text-brand-error border border-brand-error/20;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin;
+  }
+
+  /* Glass overlay */
+  .glass-overlay {
+    @apply fixed inset-0 bg-black/20 backdrop-blur-sm z-40;
+  }
+
+  /* Text utilities */
+  .text-gradient {
+    @apply bg-clip-text text-transparent bg-gradient-to-r from-brand-primary to-brand-secondary;
+  }
+
+  /* Animation utilities */
+  .animate-float {
+    animation: float 3s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Mobile responsive utilities */
+  .mobile-only {
+    @apply block sm:hidden;
+  }
+
+  .desktop-only {
+    @apply hidden sm:block;
+  }
+
+  /* Safe area utilities for mobile */
+  .safe-top {
+    padding-top: env(safe-area-inset-top);
+  }
+
+  .safe-bottom {
+    padding-bottom: env(safe-area-inset-bottom);
+  }
+
+  .safe-left {
+    padding-left: env(safe-area-inset-left);
+  }
+
+  .safe-right {
+    padding-right: env(safe-area-inset-right);
+  }
+}
+
+@layer utilities {
+  /* Backdrop filters */
+  .backdrop-blur-xs {
+    backdrop-filter: blur(2px);
+  }
+
+  /* Glass morphism utilities */
+  .glass-border {
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-image: linear-gradient(135deg, rgba(255, 255, 255, 0.3) 0%, rgba(255, 255, 255, 0.1) 100%) 1;
+  }
+
+  .glass-shadow {
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1), 0 1px 0 rgba(255, 255, 255, 0.5) inset;
+  }
+
+  /* Layout utilities */
+  .container-glass {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-12 sm:py-16 lg:py-20;
+  }
+
+  /* Transition utilities */
+  .transition-glass {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  /* Z-index utilities */
+  .z-modal {
+    z-index: 50;
+  }
+
+  .z-overlay {
+    z-index: 40;
+  }
+
+  .z-dropdown {
+    z-index: 30;
+  }
+
+  .z-header {
+    z-index: 20;
+  }
+
+  /* Print styles */
+  @media print {
+    .no-print {
+      display: none !important;
+    }
+  }
+}
+
+/* Third-party overrides */
+
+/* React Hot Toast overrides */
+.react-hot-toast {
+  @apply backdrop-blur-md;
+}
+
+/* RainbowKit overrides */
+.iekbcc0 {
+  @apply glass-modal !important;
+}
+
+/* Next.js specific overrides */
+.__next {
+  isolation: isolate;
+}

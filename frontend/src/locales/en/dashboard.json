@@ -1,0 +1,144 @@
+{
+  "dashboard": {
+    "title": "Dashboard",
+    "subtitle": "Manage your C12USD tokens on {{network}}",
+    "connectWalletTitle": "Connect Your Wallet",
+    "connectWalletDescription": "Connect your wallet to access the C12USD stablecoin platform. Manage your tokens, view balances, and interact with our services.",
+    "quickActions": "Quick Actions",
+    "transferTokens": "Transfer Tokens",
+    "redeemToUsd": "Redeem to USD"
+  },
+  "tokenBalance": {
+    "title": "Token Balance",
+    "balance": "{{symbol}} Balance",
+    "usdValue": "USD Value",
+    "tokens": "Tokens",
+    "pilotSupply": "Pilot Supply",
+    "percentUsed": "{{percent}}% Used",
+    "minted": "Minted",
+    "remaining": "Remaining",
+    "maxSupply": "Max Supply",
+    "contractInfo": "Contract",
+    "symbol": "Symbol",
+    "failedToLoad": "Failed to load balance",
+    "contractNotDeployed": "Contract Not Deployed",
+    "contractNotDeployedDesc": "C12USD token contract is not deployed on this network."
+  },
+  "transfer": {
+    "title": "Transfer C12USD",
+    "subtitle": "Send C12USD tokens to another address",
+    "recipientAddress": "Recipient Address",
+    "recipientPlaceholder": "0x...",
+    "amount": "Amount (C12USD)",
+    "amountPlaceholder": "0.00",
+    "usdValue": "USD Value: ${{amount}} (1:1 peg)",
+    "sendTransfer": "Send Transfer",
+    "preparingTransaction": "Preparing Transaction...",
+    "confirming": "Confirming...",
+    "transactionSubmitted": "Transfer transaction submitted!",
+    "transactionCompleted": "Transfer completed successfully!",
+    "transactionFailed": "Transaction Failed",
+    "invalidAddress": "Invalid Ethereum address",
+    "invalidAmount": "Invalid amount",
+    "amountRequired": "Amount is required",
+    "recipientRequired": "Recipient address is required",
+    "walletNotConnected": "Wallet not connected or contract not available",
+    "helpText": {
+      "processed": "Transfers are processed immediately on-chain",
+      "gasFees": "Gas fees apply for blockchain transactions",
+      "doubleCheck": "Double-check recipient address before sending"
+    }
+  },
+  "redeem": {
+    "title": "Redeem C12USD",
+    "subtitle": "Convert your C12USD tokens back to USD",
+    "availableBalance": "Available Balance",
+    "dailyLimitRemaining": "Daily Limit Remaining",
+    "amountToRedeem": "Amount to Redeem (USD)",
+    "payoutMethod": "Payout Method",
+    "payoutDestination": "Payout Destination (Optional)",
+    "payoutDestinationPlaceholder": "$username or phone",
+    "payoutDestinationEmail": "bank@email.com",
+    "payoutDestinationHelp": "Leave blank to use your default {{method}} account",
+    "requestRedemption": "Request Redemption",
+    "processingRedemption": "Processing Redemption...",
+    "redemptionSubmitted": "Redemption Submitted!",
+    "redemptionSuccess": "Your redemption request has been submitted successfully.",
+    "redemptionId": "Redemption ID",
+    "createAnother": "Create Another Redemption",
+    "youWillReceive": "You will receive: ${{amount}} USD",
+    "paymentMethods": {
+      "stripe": "Bank Transfer",
+      "stripeDesc": "via Stripe",
+      "cashapp": "Cash App",
+      "cashappDesc": "Instant transfer"
+    },
+    "validation": {
+      "amountRequired": "Amount is required",
+      "invalidAmount": "Invalid amount",
+      "amountGreaterThanZero": "Amount must be greater than 0",
+      "insufficientBalance": "Insufficient balance. Available: {{available}} C12USD",
+      "exceedsDailyLimit": "Daily limit exceeded. Remaining: ${{remaining}}",
+      "exceedsTransactionLimit": "Exceeds per-transaction limit",
+      "selectPayoutMethod": "Please select a payout method"
+    },
+    "errors": {
+      "connectWallet": "Please connect your wallet",
+      "redemptionFailed": "Redemption request failed"
+    },
+    "helpText": {
+      "processingTime": "Processing time: 5-10 minutes for verification",
+      "tokensBurned": "Tokens will be burned after successful payout",
+      "support": "Contact support if you don't receive payout within 24h"
+    }
+  },
+  "proofOfReserves": {
+    "title": "Proof of Reserves",
+    "reserveRatio": "Reserve Ratio",
+    "totalReserves": "Total Reserves",
+    "circulatingSupply": "Circulating",
+    "status": "Status",
+    "published": "Published",
+    "lastUpdated": "Last updated: {{date}} {{time}}",
+    "viewOnBlockchain": "View on blockchain",
+    "unableToLoad": "Unable to Load PoR Data",
+    "noDataAvailable": "No PoR data available",
+    "reserveBreakdown": "Reserve Breakdown",
+    "recentHistory": "Recent History",
+    "percentOfTotal": "{{percent}}% of total"
+  },
+  "transactionHistory": {
+    "title": "Transaction History",
+    "noTransactions": "No Transactions Found",
+    "noTransactionsDesc": "Your transactions will appear here once you start using C12USD",
+    "adjustFilters": "Try adjusting your search or filter criteria",
+    "failedToLoad": "Failed to Load History",
+    "searchPlaceholder": "Search by hash or address...",
+    "allTransactions": "All Transactions",
+    "transfers": "Transfers",
+    "mints": "Mints",
+    "redemptions": "Redemptions",
+    "transactionTypes": {
+      "transfer": "Transfer",
+      "mint": "Mint",
+      "redeem": "Redeem"
+    },
+    "descriptions": {
+      "sent": "Sent {{amount}} C12USD to {{address}}",
+      "received": "Received {{amount}} C12USD from {{address}}",
+      "minted": "Minted {{amount}} C12USD",
+      "redeemed": "Redeemed {{amount}} C12USD to USD"
+    },
+    "status": {
+      "confirmed": "Confirmed",
+      "pending": "Pending",
+      "failed": "Failed"
+    },
+    "view": "View",
+    "pagination": {
+      "showing": "Showing {{current}} of {{total}} pages",
+      "previous": "Previous",
+      "next": "Next"
+    }
+  }
+}

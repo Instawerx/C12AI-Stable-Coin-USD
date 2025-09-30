@@ -1,0 +1,278 @@
+# C12USD Environment Configuration
+# Multi-environment settings for development, staging, and production
+
+# Development Environment
+development:
+  # Database
+  database:
+    url: "postgresql://c12usd:password@localhost:5432/c12usd_dev"
+    pool_size: 10
+    connection_timeout: 30000
+    log_queries: true
+    auto_migrations: true
+
+  # Firebase
+  firebase:
+    project_id: "c12ai-dao-dev"
+    use_emulators: true
+    emulator_ports:
+      auth: 9099
+      firestore: 8080
+      functions: 5001
+      storage: 9199
+
+  # API Settings
+  api:
+    port: 3000
+    cors_origin: "http://localhost:3001"
+    rate_limiting: false
+    request_logging: true
+    mock_payments: true
+
+  # Security (relaxed for development)
+  security:
+    jwt_secret: "dev-secret-key"
+    enforce_https: false
+    session_timeout: "24h"
+    mfa_required: false
+
+  # Blockchain
+  blockchain:
+    networks:
+      bsc_testnet:
+        rpc_url: "https://data-seed-prebsc-1-s1.binance.org:8545/"
+        chain_id: 97
+        native_currency: "tBNB"
+      polygon_mumbai:
+        rpc_url: "https://rpc-mumbai.maticvigil.com"
+        chain_id: 80001
+        native_currency: "MATIC"
+
+  # External Services (test/mock endpoints)
+  services:
+    stripe:
+      secret_key: "sk_test_..."
+      webhook_secret: "whsec_..."
+      mock_mode: true
+    cashapp:
+      client_id: "test_client_id"
+      client_secret: "test_client_secret"
+      mock_mode: true
+
+# Staging Environment
+staging:
+  # Database
+  database:
+    url: ${DATABASE_URL_STAGING}
+    pool_size: 20
+    connection_timeout: 30000
+    log_queries: false
+    auto_migrations: false
+
+  # Firebase
+  firebase:
+    project_id: "c12ai-dao-staging"
+    use_emulators: false
+
+  # API Settings
+  api:
+    port: ${PORT}
+    cors_origin: "https://staging.c12usd.com"
+    rate_limiting: true
+    request_logging: true
+    mock_payments: false
+
+  # Security (moderate security for staging)
+  security:
+    jwt_secret: ${JWT_SECRET_STAGING}
+    enforce_https: true
+    session_timeout: "12h"
+    mfa_required: true
+
+  # Blockchain (testnets)
+  blockchain:
+    networks:
+      bsc_testnet:
+        rpc_url: ${BSC_TESTNET_RPC}
+        chain_id: 97
+        native_currency: "tBNB"
+      polygon_mumbai:
+        rpc_url: ${POLYGON_MUMBAI_RPC}
+        chain_id: 80001
+        native_currency: "MATIC"
+
+  # External Services (test keys)
+  services:
+    stripe:
+      secret_key: ${STRIPE_SECRET_KEY_STAGING}
+      webhook_secret: ${STRIPE_WEBHOOK_SECRET_STAGING}
+      mock_mode: false
+    cashapp:
+      client_id: ${CASHAPP_CLIENT_ID_STAGING}
+      client_secret: ${CASHAPP_CLIENT_SECRET_STAGING}
+      mock_mode: false
+
+# Production Environment
+production:
+  # Database
+  database:
+    url: ${DATABASE_URL}
+    pool_size: 50
+    connection_timeout: 30000
+    log_queries: false
+    auto_migrations: false
+    read_replicas:
+      - ${DATABASE_READ_REPLICA_1}
+      - ${DATABASE_READ_REPLICA_2}
+
+  # Firebase
+  firebase:
+    project_id: "c12ai-dao"
+    use_emulators: false
+
+  # API Settings
+  api:
+    port: ${PORT}
+    cors_origin: "https://app.c12usd.com"
+    rate_limiting: true
+    request_logging: false # Only errors logged
+    mock_payments: false
+
+  # Security (maximum security for production)
+  security:
+    jwt_secret: ${JWT_SECRET}
+    enforce_https: true
+    session_timeout: "6h"
+    mfa_required: true
+    ip_whitelisting: true
+
+  # Blockchain (mainnets)
+  blockchain:
+    networks:
+      bsc_mainnet:
+        rpc_url: ${BSC_MAINNET_RPC}
+        chain_id: 56
+        native_currency: "BNB"
+        backup_rpcs:
+          - ${BSC_BACKUP_RPC_1}
+          - ${BSC_BACKUP_RPC_2}
+      polygon_mainnet:
+        rpc_url: ${POLYGON_MAINNET_RPC}
+        chain_id: 137
+        native_currency: "MATIC"
+        backup_rpcs:
+          - ${POLYGON_BACKUP_RPC_1}
+          - ${POLYGON_BACKUP_RPC_2}
+
+  # External Services (production keys)
+  services:
+    stripe:
+      secret_key: ${STRIPE_SECRET_KEY}
+      webhook_secret: ${STRIPE_WEBHOOK_SECRET}
+      mock_mode: false
+    cashapp:
+      client_id: ${CASHAPP_CLIENT_ID}
+      client_secret: ${CASHAPP_CLIENT_SECRET}
+      mock_mode: false
+
+  # High availability settings
+  high_availability:
+    load_balancing: true
+    auto_scaling: true
+    health_checks: true
+    circuit_breakers: true
+
+# Common settings across all environments
+common:
+  # Application Info
+  app:
+    name: "C12USD Stablecoin"
+    version: "1.0.0"
+    description: "Cross-chain USD stablecoin"
+
+  # Monitoring & Observability
+  monitoring:
+    sentry:
+      enabled: true
+      dsn: ${SENTRY_DSN}
+      sample_rate: 1.0
+
+    datadog:
+      enabled: true
+      api_key: ${DATADOG_API_KEY}
+
+    prometheus:
+      enabled: true
+      port: 9090
+
+  # Logging
+  logging:
+    level: ${LOG_LEVEL:-info}
+    format: "json"
+    outputs:
+      - "console"
+      - "file"
+    file_settings:
+      max_size: "100MB"
+      max_files: 10
+      max_age: "30d"
+
+  # Cache Configuration
+  cache:
+    redis:
+      enabled: true
+      url: ${REDIS_URL}
+      ttl_seconds: 3600
+      max_connections: 100
+
+  # Message Queue
+  queue:
+    enabled: true
+    provider: "redis"
+    default_job_ttl: 3600
+    max_attempts: 3
+
+  # Feature Flags
+  features:
+    kyc_required: true
+    flash_loans_enabled: true
+    cross_chain_enabled: true
+    admin_panel_enabled: true
+    api_documentation: true
+
+  # Limits and Quotas
+  limits:
+    max_file_upload_size: "5MB"
+    max_request_size: "10MB"
+    max_response_time: 30000
+    max_concurrent_requests: 1000
+
+  # Notifications
+  notifications:
+    email:
+      provider: "sendgrid"
+      api_key: ${SENDGRID_API_KEY}
+      from_address: "noreply@c12usd.com"
+
+    slack:
+      webhook_url: ${SLACK_WEBHOOK_URL}
+      channel: "#alerts"
+
+    sms:
+      provider: "twilio"
+      account_sid: ${TWILIO_ACCOUNT_SID}
+      auth_token: ${TWILIO_AUTH_TOKEN}
+
+  # Compliance
+  compliance:
+    kyc_provider: "jumio"
+    sanctions_screening: "chainalysis"
+    transaction_monitoring: "chainalysis"
+
+  # Business Logic
+  business_rules:
+    pilot_phase:
+      max_total_supply_usd: 1000000
+      max_user_balance_usd: 100000
+      daily_mint_limit_usd: 500000
+      daily_redeem_limit_usd: 500000

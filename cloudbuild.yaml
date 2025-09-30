@@ -1,0 +1,203 @@
+# Google Cloud Build configuration for C12USD deployment pipeline
+steps:
+  # Step 1: Authenticate and setup
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'authenticate'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Authenticating with Google Cloud..."
+        gcloud auth list
+        echo "Current project: $(gcloud config get-value project)"
+
+  # Step 2: Install dependencies and run tests
+  - name: 'node:20-alpine'
+    id: 'install-and-test'
+    env:
+      - 'NODE_ENV=test'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "Installing pnpm..."
+        npm install -g pnpm@8.15.0
+
+        echo "Installing dependencies..."
+        pnpm install --frozen-lockfile
+
+        echo "Compiling contracts..."
+        pnpm compile
+
+        echo "Running tests..."
+        pnpm test
+
+        echo "Running linter..."
+        pnpm lint
+
+        echo "Generating coverage report..."
+        pnpm run coverage
+
+  # Step 3: Build and push Docker image
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'build-image'
+    args:
+      - 'build'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend:${BUILD_ID}'
+      - '-t'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend:latest'
+      - '-f'
+      - 'Dockerfile'
+      - '.'
+
+  # Step 4: Push image to Artifact Registry
+  - name: 'gcr.io/cloud-builders/docker'
+    id: 'push-image'
+    args:
+      - 'push'
+      - '--all-tags'
+      - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend'
+
+  # Step 5: Security scanning
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'security-scan'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "Running security scan on container image..."
+        gcloud artifacts docker images scan \
+          ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend:${BUILD_ID} \
+          --location=${_REGION} \
+          --remote || true
+
+  # Step 6: Deploy to Cloud Run (staging)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy-staging'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "${BRANCH_NAME}" = "develop" ]; then
+          echo "Deploying to staging environment..."
+          gcloud run deploy c12usd-backend-staging \
+            --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend:${BUILD_ID} \
+            --region=${_REGION} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=3000 \
+            --memory=1Gi \
+            --cpu=1 \
+            --concurrency=1000 \
+            --max-instances=10 \
+            --min-instances=0 \
+            --execution-environment=gen2 \
+            --service-account=${_SERVICE_ACCOUNT} \
+            --set-env-vars="NODE_ENV=staging,DATABASE_URL=${_STAGING_DATABASE_URL}" \
+            --set-secrets="BSC_RPC=bsc_rpc_url:latest,POLYGON_RPC=polygon_rpc_url:latest" \
+            --tag=staging
+        else
+          echo "Skipping staging deployment for branch: ${BRANCH_NAME}"
+        fi
+
+  # Step 7: Wait for manual approval for production (only on main branch)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'manual-approval'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "${BRANCH_NAME}" = "main" ]; then
+          echo "⚠️  MANUAL APPROVAL REQUIRED FOR PRODUCTION DEPLOYMENT ⚠️"
+          echo "This step requires manual approval in the Google Cloud Console."
+          echo "Navigate to Cloud Build > History and approve this build to continue."
+          echo "Build ID: ${BUILD_ID}"
+          echo "Image: ${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend:${BUILD_ID}"
+        else
+          echo "Skipping manual approval for branch: ${BRANCH_NAME}"
+        fi
+    waitFor: ['deploy-staging']
+
+  # Step 8: Deploy to Cloud Run (production) - only after manual approval
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'deploy-production'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "${BRANCH_NAME}" = "main" ]; then
+          echo "Deploying to production environment..."
+          gcloud run deploy c12usd-backend-prod \
+            --image=${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend:${BUILD_ID} \
+            --region=${_REGION} \
+            --platform=managed \
+            --allow-unauthenticated \
+            --port=3000 \
+            --memory=2Gi \
+            --cpu=2 \
+            --concurrency=1000 \
+            --max-instances=50 \
+            --min-instances=1 \
+            --execution-environment=gen2 \
+            --service-account=${_SERVICE_ACCOUNT} \
+            --set-env-vars="NODE_ENV=production,DATABASE_URL=${_PROD_DATABASE_URL}" \
+            --set-secrets="BSC_RPC=bsc_rpc_url:latest,POLYGON_RPC=polygon_rpc_url:latest,OPS_SIGNER_PRIVATE_KEY=ops_signer_key:latest" \
+            --tag=production
+
+          echo "Production deployment completed successfully!"
+          echo "Service URL: $(gcloud run services describe c12usd-backend-prod --region=${_REGION} --format='value(status.url)')"
+        else
+          echo "Skipping production deployment for branch: ${BRANCH_NAME}"
+        fi
+    waitFor: ['manual-approval']
+
+  # Step 9: Run post-deployment health checks
+  - name: 'gcr.io/cloud-builders/curl'
+    id: 'health-check'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        if [ "${BRANCH_NAME}" = "main" ]; then
+          PROD_URL=$(gcloud run services describe c12usd-backend-prod --region=${_REGION} --format='value(status.url)')
+          echo "Running health check on production: $PROD_URL/health"
+          curl -f "$PROD_URL/health" || exit 1
+          echo "✅ Production health check passed!"
+        elif [ "${BRANCH_NAME}" = "develop" ]; then
+          STAGING_URL=$(gcloud run services describe c12usd-backend-staging --region=${_REGION} --format='value(status.url)')
+          echo "Running health check on staging: $STAGING_URL/health"
+          curl -f "$STAGING_URL/health" || exit 1
+          echo "✅ Staging health check passed!"
+        fi
+
+# Substitution variables
+substitutions:
+  _REGION: 'us-central1'
+  _REPOSITORY: 'c12usd-repo'
+  _SERVICE_ACCOUNT: 'c12usd-service@c12ai-dao.iam.gserviceaccount.com'
+  _STAGING_DATABASE_URL: 'postgresql://c12usd_user:${_DB_PASSWORD}@${_DB_HOST}:5432/c12usd_staging'
+  _PROD_DATABASE_URL: 'postgresql://c12usd_user:${_DB_PASSWORD}@${_DB_HOST}:5432/c12usd_production'
+
+# Options
+options:
+  # Use higher-performance machine type
+  machineType: 'E2_HIGHCPU_8'
+
+  # Enable substitution of variables
+  substitution_option: 'ALLOW_LOOSE'
+
+  # Log streaming
+  logging: CLOUD_LOGGING_ONLY
+
+# Timeout for the entire build
+timeout: '1800s' # 30 minutes
+
+# Service account for the build (will be configured with Workload Identity)
+serviceAccount: 'projects/c12ai-dao/serviceAccounts/cloudbuild-sa@c12ai-dao.iam.gserviceaccount.com'
+
+# Artifacts to store
+artifacts:
+  images:
+    - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend:${BUILD_ID}'
+    - '${_REGION}-docker.pkg.dev/${PROJECT_ID}/${_REPOSITORY}/c12usd-backend:latest'

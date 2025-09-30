@@ -1,0 +1,144 @@
+{
+  "dashboard": {
+    "title": "Panel de Control",
+    "subtitle": "Gestiona tus tokens C12USD en {{network}}",
+    "connectWalletTitle": "Conecta Tu Billetera",
+    "connectWalletDescription": "Conecta tu billetera para acceder a la plataforma de stablecoin C12USD. Gestiona tus tokens, visualiza balances e interactúa con nuestros servicios.",
+    "quickActions": "Acciones Rápidas",
+    "transferTokens": "Transferir Tokens",
+    "redeemToUsd": "Redimir a USD"
+  },
+  "tokenBalance": {
+    "title": "Balance de Tokens",
+    "balance": "Balance {{symbol}}",
+    "usdValue": "Valor en USD",
+    "tokens": "Tokens",
+    "pilotSupply": "Suministro Piloto",
+    "percentUsed": "{{percent}}% Usado",
+    "minted": "Acuñado",
+    "remaining": "Restante",
+    "maxSupply": "Suministro Máximo",
+    "contractInfo": "Contrato",
+    "symbol": "Símbolo",
+    "failedToLoad": "Error al cargar balance",
+    "contractNotDeployed": "Contrato No Desplegado",
+    "contractNotDeployedDesc": "El contrato de token C12USD no está desplegado en esta red."
+  },
+  "transfer": {
+    "title": "Transferir C12USD",
+    "subtitle": "Envía tokens C12USD a otra dirección",
+    "recipientAddress": "Dirección del Destinatario",
+    "recipientPlaceholder": "0x...",
+    "amount": "Cantidad (C12USD)",
+    "amountPlaceholder": "0.00",
+    "usdValue": "Valor en USD: ${{amount}} (paridad 1:1)",
+    "sendTransfer": "Enviar Transferencia",
+    "preparingTransaction": "Preparando Transacción...",
+    "confirming": "Confirmando...",
+    "transactionSubmitted": "¡Transacción de transferencia enviada!",
+    "transactionCompleted": "¡Transferencia completada exitosamente!",
+    "transactionFailed": "Transacción Fallida",
+    "invalidAddress": "Dirección Ethereum inválida",
+    "invalidAmount": "Cantidad inválida",
+    "amountRequired": "La cantidad es requerida",
+    "recipientRequired": "La dirección del destinatario es requerida",
+    "walletNotConnected": "Billetera no conectada o contrato no disponible",
+    "helpText": {
+      "processed": "Las transferencias se procesan inmediatamente en cadena",
+      "gasFees": "Se aplican tarifas de gas para transacciones blockchain",
+      "doubleCheck": "Verifica dos veces la dirección del destinatario antes de enviar"
+    }
+  },
+  "redeem": {
+    "title": "Redimir C12USD",
+    "subtitle": "Convierte tus tokens C12USD de vuelta a USD",
+    "availableBalance": "Balance Disponible",
+    "dailyLimitRemaining": "Límite Diario Restante",
+    "amountToRedeem": "Cantidad a Redimir (USD)",
+    "payoutMethod": "Método de Pago",
+    "payoutDestination": "Destino de Pago (Opcional)",
+    "payoutDestinationPlaceholder": "$usuario o teléfono",
+    "payoutDestinationEmail": "banco@email.com",
+    "payoutDestinationHelp": "Deja en blanco para usar tu cuenta predeterminada de {{method}}",
+    "requestRedemption": "Solicitar Redención",
+    "processingRedemption": "Procesando Redención...",
+    "redemptionSubmitted": "¡Redención Enviada!",
+    "redemptionSuccess": "Tu solicitud de redención ha sido enviada exitosamente.",
+    "redemptionId": "ID de Redención",
+    "createAnother": "Crear Otra Redención",
+    "youWillReceive": "Recibirás: ${{amount}} USD",
+    "paymentMethods": {
+      "stripe": "Transferencia Bancaria",
+      "stripeDesc": "vía Stripe",
+      "cashapp": "Cash App",
+      "cashappDesc": "Transferencia instantánea"
+    },
+    "validation": {
+      "amountRequired": "La cantidad es requerida",
+      "invalidAmount": "Cantidad inválida",
+      "amountGreaterThanZero": "La cantidad debe ser mayor que 0",
+      "insufficientBalance": "Balance insuficiente. Disponible: {{available}} C12USD",
+      "exceedsDailyLimit": "Límite diario excedido. Restante: ${{remaining}}",
+      "exceedsTransactionLimit": "Excede el límite por transacción",
+      "selectPayoutMethod": "Por favor selecciona un método de pago"
+    },
+    "errors": {
+      "connectWallet": "Por favor conecta tu billetera",
+      "redemptionFailed": "La solicitud de redención falló"
+    },
+    "helpText": {
+      "processingTime": "Tiempo de procesamiento: 5-10 minutos para verificación",
+      "tokensBurned": "Los tokens se quemarán después del pago exitoso",
+      "support": "Contacta soporte si no recibes el pago en 24h"
+    }
+  },
+  "proofOfReserves": {
+    "title": "Prueba de Reservas",
+    "reserveRatio": "Ratio de Reservas",
+    "totalReserves": "Reservas Totales",
+    "circulatingSupply": "Circulante",
+    "status": "Estado",
+    "published": "Publicado",
+    "lastUpdated": "Última actualización: {{date}} {{time}}",
+    "viewOnBlockchain": "Ver en blockchain",
+    "unableToLoad": "No se Pueden Cargar Datos PoR",
+    "noDataAvailable": "No hay datos PoR disponibles",
+    "reserveBreakdown": "Desglose de Reservas",
+    "recentHistory": "Historial Reciente",
+    "percentOfTotal": "{{percent}}% del total"
+  },
+  "transactionHistory": {
+    "title": "Historial de Transacciones",
+    "noTransactions": "No se Encontraron Transacciones",
+    "noTransactionsDesc": "Tus transacciones aparecerán aquí una vez que comiences a usar C12USD",
+    "adjustFilters": "Intenta ajustar tu búsqueda o criterios de filtro",
+    "failedToLoad": "Error al Cargar Historial",
+    "searchPlaceholder": "Buscar por hash o dirección...",
+    "allTransactions": "Todas las Transacciones",
+    "transfers": "Transferencias",
+    "mints": "Acuñaciones",
+    "redemptions": "Redenciones",
+    "transactionTypes": {
+      "transfer": "Transferencia",
+      "mint": "Acuñación",
+      "redeem": "Redención"
+    },
+    "descriptions": {
+      "sent": "Enviado {{amount}} C12USD a {{address}}",
+      "received": "Recibido {{amount}} C12USD de {{address}}",
+      "minted": "Acuñado {{amount}} C12USD",
+      "redeemed": "Redimido {{amount}} C12USD a USD"
+    },
+    "status": {
+      "confirmed": "Confirmado",
+      "pending": "Pendiente",
+      "failed": "Fallido"
+    },
+    "view": "Ver",
+    "pagination": {
+      "showing": "Mostrando {{current}} de {{total}} páginas",
+      "previous": "Anterior",
+      "next": "Siguiente"
+    }
+  }
+}

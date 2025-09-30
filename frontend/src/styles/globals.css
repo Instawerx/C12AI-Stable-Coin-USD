@@ -1,0 +1,329 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: #1f2937;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #4b5563;
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6b7280;
+}
+
+/* Custom base styles */
+@layer base {
+  * {
+    @apply border-gray-600;
+  }
+
+  html {
+    font-family: 'Inter', system-ui, sans-serif;
+  }
+
+  body {
+    @apply bg-gray-900 text-gray-100;
+  }
+
+  /* Form elements */
+  input[type="text"],
+  input[type="email"],
+  input[type="number"],
+  input[type="password"],
+  textarea,
+  select {
+    @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-400;
+    @apply focus:border-primary-500 focus:ring-primary-500;
+  }
+
+  /* Buttons */
+  button {
+    @apply transition-all duration-200;
+  }
+}
+
+@layer components {
+  /* Card component */
+  .card {
+    @apply bg-gray-800 border border-gray-700 rounded-lg shadow-lg;
+  }
+
+  .card-header {
+    @apply px-6 py-4 border-b border-gray-700;
+  }
+
+  .card-body {
+    @apply px-6 py-4;
+  }
+
+  .card-footer {
+    @apply px-6 py-4 border-t border-gray-700;
+  }
+
+  /* Button variants */
+  .btn {
+    @apply px-4 py-2 rounded-md font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-offset-gray-900;
+  }
+
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white focus:ring-primary-500;
+  }
+
+  .btn-success {
+    @apply bg-success-600 hover:bg-success-700 text-white focus:ring-success-500;
+  }
+
+  .btn-danger {
+    @apply bg-danger-600 hover:bg-danger-700 text-white focus:ring-danger-500;
+  }
+
+  .btn-secondary {
+    @apply bg-gray-600 hover:bg-gray-700 text-white focus:ring-gray-500;
+  }
+
+  .btn-outline {
+    @apply border border-gray-600 hover:bg-gray-700 text-gray-300 focus:ring-gray-500;
+  }
+
+  .btn-sm {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-lg {
+    @apply px-6 py-3 text-lg;
+  }
+
+  .btn-disabled {
+    @apply opacity-50 cursor-not-allowed;
+  }
+
+  /* Status indicators */
+  .status-dot {
+    @apply inline-block w-2 h-2 rounded-full;
+  }
+
+  .status-online {
+    @apply bg-success-500;
+  }
+
+  .status-offline {
+    @apply bg-gray-500;
+  }
+
+  .status-error {
+    @apply bg-danger-500;
+  }
+
+  .status-warning {
+    @apply bg-warning-500;
+  }
+
+  /* Loading spinner */
+  .spinner {
+    @apply animate-spin inline-block w-4 h-4 border-2 border-current border-t-transparent rounded-full;
+  }
+
+  .spinner-lg {
+    @apply w-6 h-6 border-2;
+  }
+
+  /* Gradient text */
+  .text-gradient {
+    @apply bg-gradient-to-r from-primary-400 to-primary-600 bg-clip-text text-transparent;
+  }
+
+  /* Glass effect */
+  .glass {
+    @apply bg-white bg-opacity-10 backdrop-filter backdrop-blur-lg border border-white border-opacity-20;
+  }
+
+  /* Glow effect */
+  .glow {
+    @apply shadow-lg shadow-primary-500/20;
+  }
+
+  /* Animation classes */
+  .fade-in {
+    @apply animate-fade-in;
+  }
+
+  .slide-in {
+    @apply animate-slide-in;
+  }
+
+  /* Balance display */
+  .balance-display {
+    @apply font-mono text-2xl font-bold text-gradient;
+  }
+
+  /* Transaction status */
+  .tx-pending {
+    @apply text-warning-400 bg-warning-900 bg-opacity-20 border border-warning-700;
+  }
+
+  .tx-success {
+    @apply text-success-400 bg-success-900 bg-opacity-20 border border-success-700;
+  }
+
+  .tx-failed {
+    @apply text-danger-400 bg-danger-900 bg-opacity-20 border border-danger-700;
+  }
+}
+
+@layer utilities {
+  /* Custom utilities */
+  .text-shadow {
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+  }
+
+  .bg-pattern {
+    background-image: radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.1) 1px, transparent 0);
+    background-size: 20px 20px;
+  }
+
+  /* Responsive utilities */
+  .container-responsive {
+    @apply w-full max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Custom animations */
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @keyframes slide-in {
+    from {
+      opacity: 0;
+      transform: translateX(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateX(0);
+    }
+  }
+
+  @keyframes pulse-success {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes bounce-subtle {
+    0%, 20%, 50%, 80%, 100% {
+      transform: translateY(0);
+    }
+    40% {
+      transform: translateY(-4px);
+    }
+    60% {
+      transform: translateY(-2px);
+    }
+  }
+
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out;
+  }
+
+  .animate-slide-in {
+    animation: slide-in 0.3s ease-out;
+  }
+
+  .animate-pulse-success {
+    animation: pulse-success 2s infinite;
+  }
+
+  .animate-bounce-subtle {
+    animation: bounce-subtle 0.6s ease-in-out;
+  }
+
+  /* Enhanced hover effects */
+  .hover-lift {
+    @apply transition-all duration-300 hover:transform hover:-translate-y-1 hover:shadow-lg hover:shadow-primary-500/20;
+  }
+
+  .hover-glow {
+    @apply transition-all duration-300 hover:shadow-lg hover:shadow-primary-500/30 hover:border-primary-500/50;
+  }
+
+  /* Mobile-first responsive breakpoints */
+  .mobile-menu {
+    @apply fixed inset-0 z-50 bg-gray-900 bg-opacity-95 backdrop-blur-lg md:hidden;
+  }
+
+  .mobile-menu-content {
+    @apply h-full overflow-y-auto p-4;
+  }
+
+  /* Enhanced mobile responsiveness */
+  .responsive-grid {
+    @apply grid gap-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4;
+  }
+
+  .responsive-flex {
+    @apply flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4;
+  }
+
+  .responsive-text {
+    @apply text-sm sm:text-base lg:text-lg;
+  }
+
+  .responsive-padding {
+    @apply px-4 py-3 sm:px-6 sm:py-4 lg:px-8 lg:py-6;
+  }
+
+  /* Focus improvements for accessibility */
+  .focus-ring {
+    @apply focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 focus:ring-offset-gray-900;
+  }
+
+  /* Balance specific animations */
+  .balance-pulse {
+    animation: pulse-success 3s infinite;
+  }
+
+  /* Transaction list improvements */
+  .transaction-item {
+    @apply transition-all duration-200 hover:bg-gray-750 hover:border-gray-600 rounded-lg;
+  }
+
+  /* Loading skeleton improvements */
+  .skeleton {
+    @apply animate-pulse bg-gradient-to-r from-gray-700 via-gray-600 to-gray-700 bg-size-200 animate-shimmer;
+  }
+
+  @keyframes shimmer {
+    0% {
+      background-position: -200% 0;
+    }
+    100% {
+      background-position: 200% 0;
+    }
+  }
+
+  .animate-shimmer {
+    animation: shimmer 2s infinite;
+    background-size: 200% 100%;
+  }
+}

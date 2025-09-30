@@ -1,0 +1,57 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Users can read and write their own data
+    match /users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+    }
+
+    // Transaction history - users can read their own transactions
+    match /transactions/{transactionId} {
+      allow read: if request.auth != null &&
+        (resource.data.fromAddress == request.auth.token.address ||
+         resource.data.toAddress == request.auth.token.address);
+      allow create: if request.auth != null &&
+        request.auth.token.address == resource.data.fromAddress;
+    }
+
+    // Public data - smart contract addresses, supported chains
+    match /config/{configId} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        request.auth.token.admin == true;
+    }
+
+    // Proof of reserves data - public read access
+    match /proof-of-reserves/{document} {
+      allow read: if true;
+      allow write: if request.auth != null &&
+        request.auth.token.admin == true;
+    }
+
+    // Compliance and KYC data - admin access only
+    match /kyc/{userId} {
+      allow read, write: if request.auth != null &&
+        request.auth.token.admin == true;
+    }
+
+    // Audit logs - admin read only
+    match /audit-logs/{logId} {
+      allow read: if request.auth != null &&
+        request.auth.token.admin == true;
+      allow create: if request.auth != null;
+    }
+
+    // Rate limiting and security
+    match /rate-limits/{userId} {
+      allow read, write: if request.auth != null &&
+        (request.auth.uid == userId || request.auth.token.admin == true);
+    }
+
+    // Default deny all other requests
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

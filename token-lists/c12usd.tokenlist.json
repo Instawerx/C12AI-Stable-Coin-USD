@@ -1,0 +1,61 @@
+{
+  "name": "C12USD Stablecoin",
+  "timestamp": "2025-09-30T00:00:00.000Z",
+  "version": {
+    "major": 1,
+    "minor": 0,
+    "patch": 0
+  },
+  "logoURI": "https://raw.githubusercontent.com/carnival12/C12USD/main/assets/icons/c12usd-256.png",
+  "keywords": [
+    "stablecoin",
+    "defi",
+    "layerzero",
+    "cross-chain",
+    "dao"
+  ],
+  "tokens": [
+    {
+      "chainId": 56,
+      "address": "0x6fa920C5c676ac15AF6360D9D755187a6C87bd58",
+      "name": "C12USD",
+      "symbol": "C12USD",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/carnival12/C12USD/main/assets/icons/c12usd-256.png",
+      "tags": [
+        "stablecoin"
+      ],
+      "extensions": {
+        "website": "https://c12ai.com",
+        "description": "C12USD is a USD-pegged stablecoin powered by C12AI DAO with cross-chain capabilities via LayerZero",
+        "explorer": "https://bscscan.com/token/0x6fa920C5c676ac15AF6360D9D755187a6C87bd58",
+        "bridgeInfo": {
+          "137": {
+            "tokenAddress": "0xD85F049E881D899Bd1a3600A58A08c2eA4f34811"
+          }
+        }
+      }
+    },
+    {
+      "chainId": 137,
+      "address": "0xD85F049E881D899Bd1a3600A58A08c2eA4f34811",
+      "name": "C12USD",
+      "symbol": "C12USD",
+      "decimals": 18,
+      "logoURI": "https://raw.githubusercontent.com/carnival12/C12USD/main/assets/icons/c12usd-256.png",
+      "tags": [
+        "stablecoin"
+      ],
+      "extensions": {
+        "website": "https://c12ai.com",
+        "description": "C12USD is a USD-pegged stablecoin powered by C12AI DAO with cross-chain capabilities via LayerZero",
+        "explorer": "https://polygonscan.com/token/0xD85F049E881D899Bd1a3600A58A08c2eA4f34811",
+        "bridgeInfo": {
+          "56": {
+            "tokenAddress": "0x6fa920C5c676ac15AF6360D9D755187a6C87bd58"
+          }
+        }
+      }
+    }
+  ]
+}

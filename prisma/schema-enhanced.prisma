@@ -1,0 +1,744 @@
+// C12USD Stablecoin Enhanced Database Schema
+// Comprehensive schema for financial operations, compliance, and auditing
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User accounts and authentication
+model User {
+  id          String   @id @default(cuid())
+  address     String   @unique // Ethereum address (primary identifier)
+  email       String?  @unique
+  phoneNumber String?
+
+  // User profile
+  firstName   String?
+  lastName    String?
+  dateOfBirth DateTime?
+  country     String?
+
+  // Account status
+  status      UserStatus @default(ACTIVE)
+  kycStatus   KYCStatus  @default(NOT_STARTED)
+  kycTier     Int        @default(0) // 0=unverified, 1=basic, 2=full
+
+  // Risk and compliance
+  riskScore   Int        @default(0) // 0-100 risk score
+  isBlacklisted Boolean  @default(false)
+  lastLoginAt DateTime?
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  mintReceipts       MintReceipt[]
+  redeemReceipts     RedeemReceipt[]
+  transactions       Transaction[]
+  kycDocuments       KYCDocument[]
+  complianceChecks   ComplianceCheck[]
+  flashLoanRequests  FlashLoanRequest[]
+  crossChainTransfers CrossChainTransfer[]
+  userSessions       UserSession[]
+
+  @@map("users")
+}
+
+// KYC Documents and verification
+model KYCDocument {
+  id          String      @id @default(cuid())
+  userId      String
+  type        DocumentType
+  status      DocumentStatus @default(PENDING)
+
+  // Document details
+  filename    String
+  storageUrl  String
+  mimeType    String
+  fileSize    Int
+
+  // Verification
+  verifiedBy  String?     // Admin who verified
+  verifiedAt  DateTime?
+  rejectionReason String?
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  // Relationships
+  user        User @relation(fields: [userId], references: [id])
+
+  @@map("kyc_documents")
+}
+
+// User sessions for security tracking
+model UserSession {
+  id          String   @id @default(cuid())
+  userId      String
+  sessionToken String  @unique
+
+  // Session details
+  ipAddress   String
+  userAgent   String?
+  country     String?
+  city        String?
+
+  // Session status
+  isActive    Boolean  @default(true)
+  lastActivity DateTime @default(now())
+  expiresAt   DateTime
+
+  // Security flags
+  isSuspicious Boolean @default(false)
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+
+  // Relationships
+  user        User @relation(fields: [userId], references: [id])
+
+  @@map("user_sessions")
+}
+
+// Enhanced mint operations
+model MintReceipt {
+  id                String       @id @default(cuid())
+  userId            String
+  amount            Decimal      @db.Decimal(18, 6) // USD amount
+  tokenAmount       Decimal      @db.Decimal(18, 18) // Token amount with 18 decimals
+  chain             Chain
+  status            MintStatus
+
+  // Payment information
+  paymentMethod     PaymentMethod
+  paymentId         String       @unique // Stripe/Cash App transaction ID
+  paymentHash       String?      // Payment processor hash
+  paymentFee        Decimal?     @db.Decimal(18, 6) // Payment processing fee
+
+  // Blockchain information
+  txHash            String?      // Mint transaction hash
+  blockNumber       BigInt?
+  gasUsed           BigInt?
+  gasPrice          BigInt?      // Gas price in wei
+
+  // Signatures and verification
+  receipt           String       // Signed receipt from signer service
+  signature         String       // Signature for the mint operation
+  nonce             String       @unique
+
+  // Rate and fee information
+  exchangeRate      Decimal      @db.Decimal(18, 8) // USD/Token rate
+  mintFee           Decimal      @db.Decimal(18, 6) // Platform fee
+  totalFees         Decimal      @db.Decimal(18, 6) // Total fees paid
+
+  // Risk and compliance
+  riskScore         Int          @default(0)
+  complianceFlags   Json?        // Any compliance flags
+
+  // Timestamps
+  createdAt         DateTime     @default(now())
+  completedAt       DateTime?
+  expiresAt         DateTime
+
+  // Relationships
+  user              User         @relation(fields: [userId], references: [id])
+  transaction       Transaction?
+
+  @@map("mint_receipts")
+}
+
+// Enhanced redeem operations
+model RedeemReceipt {
+  id                String        @id @default(cuid())
+  userId            String
+  tokenAmount       Decimal       @db.Decimal(18, 18) // Token amount burned
+  amount            Decimal       @db.Decimal(18, 6) // USD amount to receive
+  chain             Chain
+  status            RedeemStatus
+
+  // Payment information
+  paymentMethod     PaymentMethod
+  paymentAddress    String        // Bank account, Cash App handle, etc.
+  paymentFee        Decimal?      @db.Decimal(18, 6) // Payout processing fee
+
+  // Blockchain information
+  burnTxHash        String?       // Burn transaction hash
+  blockNumber       BigInt?
+  gasUsed           BigInt?
+  gasPrice          BigInt?
+
+  // Payout information
+  payoutId          String?       @unique // Stripe/Cash App payout ID
+  payoutHash        String?
+  payoutFee         Decimal?      @db.Decimal(18, 6)
+
+  // Signatures and verification
+  receipt           String        // Signed receipt
+  signature         String
+  nonce             String        @unique
+
+  // Rate and fee information
+  exchangeRate      Decimal       @db.Decimal(18, 8) // Token/USD rate
+  redeemFee         Decimal       @db.Decimal(18, 6) // Platform fee
+  totalFees         Decimal       @db.Decimal(18, 6) // Total fees paid
+
+  // Risk and compliance
+  riskScore         Int           @default(0)
+  complianceFlags   Json?
+
+  // Timestamps
+  createdAt         DateTime      @default(now())
+  completedAt       DateTime?
+  expiresAt         DateTime
+
+  // Relationships
+  user              User          @relation(fields: [userId], references: [id])
+  transaction       Transaction?
+
+  @@map("redeem_receipts")
+}
+
+// Comprehensive transaction tracking
+model Transaction {
+  id              String            @id @default(cuid())
+  hash            String            @unique
+  type            TransactionType
+  status          TransactionStatus @default(PENDING)
+
+  // Basic transaction info
+  fromAddress     String?
+  toAddress       String?
+  amount          Decimal           @db.Decimal(18, 18)
+  chain           Chain
+
+  // Blockchain details
+  blockNumber     BigInt?
+  blockHash       String?
+  transactionIndex Int?
+  gasUsed         BigInt?
+  gasPrice        BigInt?
+  gasLimit        BigInt?
+
+  // Financial details
+  usdValue        Decimal?          @db.Decimal(18, 6)
+  fee             Decimal?          @db.Decimal(18, 18)
+
+  // Metadata
+  metadata        Json?
+  errorMessage    String?
+  retryCount      Int               @default(0)
+
+  // Timestamps
+  createdAt       DateTime          @default(now())
+  confirmedAt     DateTime?
+  updatedAt       DateTime          @updatedAt
+
+  // Relationships
+  userId          String?
+  user            User?             @relation(fields: [userId], references: [id])
+  mintReceiptId   String?           @unique
+  mintReceipt     MintReceipt?      @relation(fields: [mintReceiptId], references: [id])
+  redeemReceiptId String?           @unique
+  redeemReceipt   RedeemReceipt?    @relation(fields: [redeemReceiptId], references: [id])
+
+  @@index([hash])
+  @@index([fromAddress, createdAt])
+  @@index([toAddress, createdAt])
+  @@index([chain, status])
+  @@map("transactions")
+}
+
+// Treasury operations tracking
+model TreasuryOperation {
+  id              String                @id @default(cuid())
+  type            TreasuryOperationType
+  status          OperationStatus       @default(PENDING)
+
+  // Operation details
+  amount          Decimal               @db.Decimal(18, 6)
+  currency        String                @default("USD")
+  description     String
+
+  // Authorization
+  requestedBy     String                // Admin address
+  approvedBy      String?               // Approving admin
+  requiredApprovals Int                 @default(1)
+  currentApprovals  Int                 @default(0)
+
+  // External references
+  externalId      String?               // Bank transaction ID, etc.
+  externalHash    String?
+
+  // Blockchain info (if applicable)
+  txHash          String?
+  chain           Chain?
+  blockNumber     BigInt?
+
+  // Risk and compliance
+  riskAssessment  Json?
+  complianceChecks Json?
+
+  // Timestamps
+  createdAt       DateTime              @default(now())
+  executedAt      DateTime?
+  updatedAt       DateTime              @updatedAt
+
+  @@map("treasury_operations")
+}
+
+// Flash loan functionality
+model FlashLoanRequest {
+  id              String            @id @default(cuid())
+  userId          String
+  amount          Decimal           @db.Decimal(18, 18) // Amount in tokens
+  status          FlashLoanStatus   @default(PENDING)
+
+  // Loan details
+  chain           Chain
+  collateralAmount Decimal?         @db.Decimal(18, 18)
+  interestRate    Decimal           @db.Decimal(5, 4) // APR as decimal
+  duration        Int               // Duration in seconds
+
+  // Contract details
+  contractAddress String
+  callData        String            // Encoded function call
+
+  // Financial tracking
+  fee             Decimal           @db.Decimal(18, 18)
+  profit          Decimal?          @db.Decimal(18, 18)
+
+  // Execution details
+  txHash          String?
+  blockNumber     BigInt?
+  gasUsed         BigInt?
+
+  // Risk assessment
+  riskScore       Int               @default(0)
+  maxSlippage     Decimal           @db.Decimal(5, 4)
+
+  // Timestamps
+  createdAt       DateTime          @default(now())
+  executedAt      DateTime?
+  completedAt     DateTime?
+  expiresAt       DateTime
+
+  // Relationships
+  user            User              @relation(fields: [userId], references: [id])
+
+  @@map("flash_loan_requests")
+}
+
+// Cross-chain transfer tracking
+model CrossChainTransfer {
+  id                String                @id @default(cuid())
+  userId            String
+  status            CrossChainStatus      @default(PENDING)
+
+  // Transfer details
+  amount            Decimal               @db.Decimal(18, 18)
+  fromChain         Chain
+  toChain           Chain
+  fromAddress       String
+  toAddress         String
+
+  // LayerZero details
+  srcTxHash         String?               // Source transaction hash
+  dstTxHash         String?               // Destination transaction hash
+  lzTxHash          String?               // LayerZero transaction hash
+  nonce             BigInt?
+
+  // Fee information
+  bridgeFee         Decimal               @db.Decimal(18, 18)
+  gasFee            Decimal               @db.Decimal(18, 18)
+  totalFee          Decimal               @db.Decimal(18, 18)
+
+  // Timing
+  estimatedArrival  DateTime?
+
+  // Error handling
+  errorMessage      String?
+  retryCount        Int                   @default(0)
+  maxRetries        Int                   @default(3)
+
+  // Timestamps
+  createdAt         DateTime              @default(now())
+  completedAt       DateTime?
+  updatedAt         DateTime              @updatedAt
+
+  // Relationships
+  user              User                  @relation(fields: [userId], references: [id])
+
+  @@map("cross_chain_transfers")
+}
+
+// Compliance checks and monitoring
+model ComplianceCheck {
+  id              String              @id @default(cuid())
+  userId          String
+  type            ComplianceType
+  status          ComplianceStatus    @default(PENDING)
+
+  // Check details
+  riskScore       Int
+  flags           Json?               // Array of flags raised
+  details         Json?               // Detailed check results
+
+  // External service references
+  providerId      String?             // Chainalysis, etc.
+  providerRef     String?             // External reference ID
+
+  // Resolution
+  resolution      String?
+  resolvedBy      String?             // Admin who resolved
+  resolvedAt      DateTime?
+
+  // Timestamps
+  createdAt       DateTime            @default(now())
+  updatedAt       DateTime            @updatedAt
+
+  // Relationships
+  user            User                @relation(fields: [userId], references: [id])
+
+  @@map("compliance_checks")
+}
+
+// Enhanced reserve tracking with detailed breakdown
+model ReserveSnapshot {
+  id                    String   @id @default(cuid())
+  totalUsdReserve       Decimal  @db.Decimal(18, 6) // Total USD in reserve
+  totalSupply           Decimal  @db.Decimal(18, 18) // Total token supply across all chains
+
+  // Per-chain breakdown
+  bscSupply             Decimal  @db.Decimal(18, 18)
+  polygonSupply         Decimal  @db.Decimal(18, 18)
+
+  // Detailed reserve sources
+  stripeBalance         Decimal  @db.Decimal(18, 6)
+  cashAppBalance        Decimal  @db.Decimal(18, 6)
+  bankBalance           Decimal  @db.Decimal(18, 6)
+  otherBalance          Decimal  @db.Decimal(18, 6) // Other payment processors
+
+  // Treasury assets
+  treasuryBalance       Decimal  @db.Decimal(18, 6)
+  emergencyReserve      Decimal  @db.Decimal(18, 6)
+
+  // Compliance and health metrics
+  collateralRatio       Decimal  @db.Decimal(5, 4) // Should be >= 1.0000
+  isHealthy             Boolean  @default(true)
+  healthScore           Int      @default(100) // 0-100 health score
+
+  // External verification
+  auditorHash           String?  // External auditor verification
+  attestationUrl        String?  // Link to public attestation
+
+  // Blockchain data
+  blockNumber           BigInt
+  blockHash             String?
+
+  // Metadata
+  generatedBy           String   // Service/admin that generated
+  version               String   @default("1.0")
+
+  timestamp             DateTime @default(now())
+
+  @@map("reserve_snapshots")
+}
+
+// Enhanced audit trail
+model AuditLog {
+  id            String         @id @default(cuid())
+  action        AuditAction
+  entityType    String         // "mint", "redeem", "reserve", etc.
+  entityId      String         // ID of the related entity
+
+  // Context
+  userAddress   String?
+  adminAddress  String?
+  ipAddress     String?
+  userAgent     String?
+  country       String?
+
+  // Session tracking
+  sessionId     String?
+
+  // Risk and security
+  riskScore     Int            @default(0)
+  securityFlags Json?
+
+  // Data changes
+  oldData       Json?
+  newData       Json?
+  metadata      Json?
+
+  // Severity and category
+  severity      LogSeverity    @default(INFO)
+  category      LogCategory    @default(SYSTEM)
+
+  // Correlation
+  correlationId String?        // For tracking related events
+  parentLogId   String?        // Reference to parent log entry
+
+  timestamp     DateTime       @default(now())
+
+  @@index([action, timestamp])
+  @@index([entityType, entityId])
+  @@index([userAddress, timestamp])
+  @@index([adminAddress, timestamp])
+  @@index([severity, timestamp])
+  @@map("audit_logs")
+}
+
+// Enhanced system configuration
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  dataType    ConfigDataType @default(STRING)
+  category    String   @default("general")
+  description String?
+
+  // Validation
+  minValue    String?  // For numeric types
+  maxValue    String?  // For numeric types
+  validValues Json?    // Array of valid values
+
+  // Environment specific
+  environment String   @default("all") // "production", "staging", "all"
+
+  // Security
+  isSecret    Boolean  @default(false)
+  isReadOnly  Boolean  @default(false)
+
+  // Change tracking
+  updatedBy   String   // Admin address
+  version     Int      @default(1)
+
+  // Timestamps
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_config")
+}
+
+// Rate limiting and security
+model RateLimit {
+  id            String   @id @default(cuid())
+  identifier    String   // User ID or IP address
+  type          RateLimitType
+  windowStart   DateTime
+  windowEnd     DateTime
+  requestCount  Int      @default(0)
+  limit         Int
+
+  // Additional context
+  userAgent     String?
+  ipAddress     String?
+  country       String?
+
+  // Status
+  isBlocked     Boolean  @default(false)
+  blockedUntil  DateTime?
+
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@unique([identifier, type, windowStart])
+  @@index([windowStart, windowEnd])
+  @@map("rate_limits")
+}
+
+// Enhanced Enums
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+  BANNED
+  DEACTIVATED
+}
+
+enum KYCStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum DocumentType {
+  PASSPORT
+  DRIVERS_LICENSE
+  NATIONAL_ID
+  PROOF_OF_ADDRESS
+  SELFIE
+  OTHER
+}
+
+enum DocumentStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum Chain {
+  BSC
+  POLYGON
+  ETHEREUM
+  ARBITRUM
+}
+
+enum MintStatus {
+  PENDING
+  PAYMENT_RECEIVED
+  SIGNATURE_PENDING
+  MINTING
+  COMPLETED
+  FAILED
+  EXPIRED
+  CANCELLED
+}
+
+enum RedeemStatus {
+  PENDING
+  BURN_PENDING
+  BURNED
+  PAYOUT_PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  STRIPE
+  CASHAPP
+  BANK_TRANSFER
+  CRYPTO
+  OTHER
+}
+
+enum TransactionType {
+  MINT
+  REDEEM
+  TRANSFER
+  BRIDGE
+  FLASH_LOAN
+  TREASURY
+}
+
+enum TransactionStatus {
+  PENDING
+  CONFIRMED
+  FAILED
+  CANCELLED
+  EXPIRED
+}
+
+enum TreasuryOperationType {
+  DEPOSIT
+  WITHDRAWAL
+  TRANSFER
+  INVESTMENT
+  RESERVE_ADJUSTMENT
+  FEE_COLLECTION
+}
+
+enum OperationStatus {
+  PENDING
+  APPROVED
+  EXECUTED
+  FAILED
+  CANCELLED
+}
+
+enum FlashLoanStatus {
+  PENDING
+  APPROVED
+  EXECUTED
+  REPAID
+  DEFAULTED
+  CANCELLED
+}
+
+enum CrossChainStatus {
+  PENDING
+  INITIATED
+  IN_PROGRESS
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum ComplianceType {
+  AML
+  KYC
+  SANCTIONS
+  RISK_ASSESSMENT
+  TRANSACTION_MONITORING
+}
+
+enum ComplianceStatus {
+  PENDING
+  PASSED
+  FAILED
+  REVIEW_REQUIRED
+  ESCALATED
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  LOGIN
+  LOGOUT
+  MINT
+  REDEEM
+  TRANSFER
+  APPROVE
+  REJECT
+  SUSPEND
+  ACTIVATE
+  CONFIG_CHANGE
+  RESERVE_UPDATE
+  COMPLIANCE_CHECK
+  SECURITY_EVENT
+}
+
+enum LogSeverity {
+  DEBUG
+  INFO
+  WARN
+  ERROR
+  CRITICAL
+}
+
+enum LogCategory {
+  SYSTEM
+  SECURITY
+  FINANCIAL
+  COMPLIANCE
+  USER_ACTION
+  ADMIN_ACTION
+}
+
+enum ConfigDataType {
+  STRING
+  NUMBER
+  BOOLEAN
+  JSON
+}
+
+enum RateLimitType {
+  API_REQUESTS
+  MINT_OPERATIONS
+  REDEEM_OPERATIONS
+  LOGIN_ATTEMPTS
+  FAILED_TRANSACTIONS
+}

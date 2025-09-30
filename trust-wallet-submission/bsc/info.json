@@ -1,0 +1,35 @@
+{
+  "name": "C12USD",
+  "type": "BEP20",
+  "symbol": "C12USD",
+  "decimals": 18,
+  "website": "https://c12ai.com",
+  "description": "C12USD is a USD-pegged stablecoin powered by C12AI DAO with cross-chain capabilities via LayerZero. Features include ERC-3156 flash loans, EIP-2612 permit functionality, and seamless cross-chain transfers between BSC and Polygon networks.",
+  "explorer": "https://bscscan.com/token/0x6fa920C5c676ac15AF6360D9D755187a6C87bd58",
+  "status": "active",
+  "id": "0x6fa920C5c676ac15AF6360D9D755187a6C87bd58",
+  "links": [
+    {
+      "name": "github",
+      "url": "https://github.com/carnival12/C12USD"
+    },
+    {
+      "name": "twitter",
+      "url": "https://twitter.com/c12ai"
+    },
+    {
+      "name": "telegram",
+      "url": "https://t.me/c12ai"
+    },
+    {
+      "name": "coinmarketcap",
+      "url": "https://coinmarketcap.com/currencies/c12usd/"
+    }
+  ],
+  "tags": [
+    "stablecoin",
+    "defi",
+    "cross-chain",
+    "layerzero"
+  ]
+}

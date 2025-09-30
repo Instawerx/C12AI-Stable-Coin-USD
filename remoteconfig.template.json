@@ -1,0 +1,182 @@
+{
+  "conditions": [
+    {
+      "name": "production",
+      "expression": "app.instanceId == 'c12ai-dao'",
+      "tagColor": "RED"
+    },
+    {
+      "name": "staging",
+      "expression": "app.instanceId == 'c12ai-dao-staging'",
+      "tagColor": "ORANGE"
+    },
+    {
+      "name": "development",
+      "expression": "true",
+      "tagColor": "GREEN"
+    }
+  ],
+  "parameters": {
+    "maintenance_mode": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "description": "Enable maintenance mode to disable all operations",
+      "valueType": "BOOLEAN"
+    },
+    "max_mint_amount_usd": {
+      "defaultValue": {
+        "value": "10000"
+      },
+      "conditionalValues": {
+        "production": {
+          "value": "100000"
+        },
+        "staging": {
+          "value": "1000"
+        }
+      },
+      "description": "Maximum USD amount that can be minted in a single transaction",
+      "valueType": "NUMBER"
+    },
+    "max_redeem_amount_usd": {
+      "defaultValue": {
+        "value": "10000"
+      },
+      "conditionalValues": {
+        "production": {
+          "value": "100000"
+        },
+        "staging": {
+          "value": "1000"
+        }
+      },
+      "description": "Maximum USD amount that can be redeemed in a single transaction",
+      "valueType": "NUMBER"
+    },
+    "circuit_breaker_enabled": {
+      "defaultValue": {
+        "value": "true"
+      },
+      "description": "Enable circuit breaker to pause operations during emergencies",
+      "valueType": "BOOLEAN"
+    },
+    "kyc_required": {
+      "defaultValue": {
+        "value": "false"
+      },
+      "conditionalValues": {
+        "production": {
+          "value": "true"
+        }
+      },
+      "description": "Require KYC verification for all operations",
+      "valueType": "BOOLEAN"
+    },
+    "supported_chains": {
+      "defaultValue": {
+        "value": "[\"BSC\", \"POLYGON\"]"
+      },
+      "description": "List of supported blockchain networks",
+      "valueType": "JSON"
+    },
+    "mint_fee_bps": {
+      "defaultValue": {
+        "value": "0"
+      },
+      "description": "Minting fee in basis points (0 = no fee)",
+      "valueType": "NUMBER"
+    },
+    "redeem_fee_bps": {
+      "defaultValue": {
+        "value": "0"
+      },
+      "description": "Redemption fee in basis points (0 = no fee)",
+      "valueType": "NUMBER"
+    },
+    "min_collateral_ratio": {
+      "defaultValue": {
+        "value": "1.0"
+      },
+      "description": "Minimum collateral ratio required",
+      "valueType": "NUMBER"
+    },
+    "por_update_interval_minutes": {
+      "defaultValue": {
+        "value": "60"
+      },
+      "conditionalValues": {
+        "production": {
+          "value": "15"
+        }
+      },
+      "description": "How often to update Proof of Reserve data (in minutes)",
+      "valueType": "NUMBER"
+    },
+    "rate_limit_per_hour": {
+      "defaultValue": {
+        "value": "100"
+      },
+      "conditionalValues": {
+        "production": {
+          "value": "1000"
+        },
+        "staging": {
+          "value": "50"
+        }
+      },
+      "description": "API rate limit per user per hour",
+      "valueType": "NUMBER"
+    },
+    "notification_endpoints": {
+      "defaultValue": {
+        "value": "{\"slack\": \"\", \"discord\": \"\", \"email\": \"\"}"
+      },
+      "description": "Notification endpoints for alerts and updates",
+      "valueType": "JSON"
+    }
+  },
+  "parameterGroups": {
+    "limits": {
+      "description": "Transaction and operational limits",
+      "parameters": {
+        "max_mint_amount_usd": {},
+        "max_redeem_amount_usd": {},
+        "rate_limit_per_hour": {}
+      }
+    },
+    "fees": {
+      "description": "Fee configuration",
+      "parameters": {
+        "mint_fee_bps": {},
+        "redeem_fee_bps": {}
+      }
+    },
+    "compliance": {
+      "description": "Compliance and security settings",
+      "parameters": {
+        "kyc_required": {},
+        "circuit_breaker_enabled": {},
+        "min_collateral_ratio": {}
+      }
+    },
+    "system": {
+      "description": "System configuration",
+      "parameters": {
+        "maintenance_mode": {},
+        "supported_chains": {},
+        "por_update_interval_minutes": {},
+        "notification_endpoints": {}
+      }
+    }
+  },
+  "version": {
+    "versionNumber": "1",
+    "updateTime": "2024-09-25T00:00:00Z",
+    "updateUser": {
+      "email": "admin@c12ai-dao.com"
+    },
+    "updateOrigin": "CONSOLE",
+    "updateType": "INCREMENTAL_UPDATE"
+  }
+}

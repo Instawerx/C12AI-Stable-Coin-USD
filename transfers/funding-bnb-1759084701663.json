@@ -1,0 +1,12 @@
+{
+  "network": "bnb",
+  "chainId": 56,
+  "transactionHash": "0xf30f7ce3e55723868b99df14ffa3ee43665504cd7fe7fe4dafe4f217ed0bcf51",
+  "blockNumber": 62780921,
+  "from": "0x7903c63CB9f42284d03BC2a124474760f9C1390b",
+  "to": "0x7E5F4552091A69125d5DfCb7b8C2659029395Bdf",
+  "amount": "0.12",
+  "currency": "BNB",
+  "gasUsed": "30628",
+  "timestamp": "2025-09-28T18:38:21.662Z"
+}

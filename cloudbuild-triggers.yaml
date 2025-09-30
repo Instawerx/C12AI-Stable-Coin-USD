@@ -1,0 +1,81 @@
+# Cloud Build Triggers Configuration for C12USD CI/CD Pipeline
+# This file defines the automated deployment triggers for Git push events
+
+# Main deployment trigger for production
+apiVersion: cloudbuild.googleapis.com/v1alpha1
+kind: BuildTrigger
+metadata:
+  name: c12usd-production-deploy
+  project: c12ai-dao
+spec:
+  description: "Automated deployment trigger for C12USD production on main branch push"
+  github:
+    owner: "${GITHUB_OWNER}"  # Set this to your GitHub username/organization
+    name: "${GITHUB_REPO}"     # Set this to your repository name
+    push:
+      branch: "^main$"
+  filename: "cloudbuild.yaml"
+  includedFiles:
+    - "src/**"
+    - "contracts/**"
+    - "package.json"
+    - "Dockerfile"
+    - "cloudbuild.yaml"
+  substitutions:
+    _REGION: "us-central1"
+    _REPOSITORY: "c12usd-repo"
+    _SERVICE_ACCOUNT: "c12usd-production-cloudrun@c12ai-dao.iam.gserviceaccount.com"
+    _ENVIRONMENT: "production"
+    _CONTACT_EMAIL: "admin@carnival12.com"
+
+---
+# Staging deployment trigger for develop branch
+apiVersion: cloudbuild.googleapis.com/v1alpha1
+kind: BuildTrigger
+metadata:
+  name: c12usd-staging-deploy
+  project: c12ai-dao
+spec:
+  description: "Automated deployment trigger for C12USD staging on develop branch push"
+  github:
+    owner: "${GITHUB_OWNER}"
+    name: "${GITHUB_REPO}"
+    push:
+      branch: "^develop$"
+  filename: "cloudbuild-staging.yaml"
+  includedFiles:
+    - "src/**"
+    - "contracts/**"
+    - "package.json"
+    - "Dockerfile"
+    - "cloudbuild-staging.yaml"
+  substitutions:
+    _REGION: "us-central1"
+    _REPOSITORY: "c12usd-repo"
+    _SERVICE_ACCOUNT: "c12usd-production-cloudrun@c12ai-dao.iam.gserviceaccount.com"
+    _ENVIRONMENT: "staging"
+    _CONTACT_EMAIL: "admin@carnival12.com"
+
+---
+# Smart contract deployment trigger for contract changes
+apiVersion: cloudbuild.googleapis.com/v1alpha1
+kind: BuildTrigger
+metadata:
+  name: c12usd-contracts-deploy
+  project: c12ai-dao
+spec:
+  description: "Smart contract deployment trigger for contract changes"
+  github:
+    owner: "${GITHUB_OWNER}"
+    name: "${GITHUB_REPO}"
+    push:
+      branch: "^main$"
+  filename: "cloudbuild-contracts.yaml"
+  includedFiles:
+    - "contracts/**"
+    - "scripts/**"
+    - "hardhat.config.js"
+  substitutions:
+    _DEPLOYER_KEY: "ops_signer_key"
+    _ENVIRONMENT: "production"
+    _CONTACT_EMAIL: "admin@carnival12.com"

@@ -1,0 +1,62 @@
+====================================================================
+COPY THIS FOR YOUR PULL REQUEST
+====================================================================
+
+TITLE:
+------
+Add C12USD stablecoin (BSC + Polygon)
+
+
+DESCRIPTION:
+------------
+## Overview
+Adding C12USD, a USD-pegged stablecoin with cross-chain capabilities via LayerZero
+
+## Token Information
+- Name: C12USD
+- Symbol: C12USD
+- Decimals: 18
+- Type: Stablecoin
+- Chains: BSC (56) + Polygon (137)
+- Total Supply: 200,000,000 C12USD (100M per chain)
+
+## Contract Addresses
+- **BSC**: 0x6fa920C5c676ac15AF6360D9D755187a6C87bd58
+- **Polygon**: 0xD85F049E881D899Bd1a3600A58A08c2eA4f34811
+
+## Gateway Contracts
+- **BSC Gateway**: 0x8303Ac615266d5b9940b74332503f25D092F5f13
+- **Polygon Gateway**: 0xF3a23bbebC06435dF16370F879cD808c408f702D
+
+## Verification
+- [x] Logo is 256x256 PNG (9.5KB - well under 100KB limit)
+- [x] Logo has transparent background
+- [x] info.json follows schema
+- [x] Contracts deployed and verified
+- [x] Token has active supply (100M on each chain)
+- [x] Treasury funded and operational
+
+## Blockchain Explorers
+- **BSCScan**: https://bscscan.com/token/0x6fa920C5c676ac15AF6360D9D755187a6C87bd58
+- **PolygonScan**: https://polygonscan.com/token/0xD85F049E881D899Bd1a3600A58A08c2eA4f34811
+
+## Minting Transactions
+- **BSC Mint**: https://bscscan.com/tx/0x79f99cb4b21a0bc926bd5ef9dcfe52ca450ee23218b8a74ce4fce1c8084cc564
+
+## Project Links
+- **Website**: https://c12ai.com
+- **GitHub**: https://github.com/carnival12/C12USD
+- **Twitter**: https://twitter.com/c12ai
+- **Telegram**: https://t.me/c12ai
+
+## Key Features
+- ⚡ LayerZero V2 for seamless cross-chain transfers
+- 💰 ERC-3156 Flash Loans with competitive 0.05% fee
+- 🔐 EIP-2612 Permit functionality for gasless approvals
+- 🛡️ Role-based access control with circuit breaker
+- 🔄 Active cross-chain liquidity on BSC and Polygon
+
+## Additional Information
+C12USD is a production-ready stablecoin powered by C12AI DAO, designed for DeFi integration with enterprise-grade security features. The token is actively maintained and has undergone comprehensive testing.
+
+====================================================================

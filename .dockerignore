@@ -1,0 +1,62 @@
+# Dependencies
+node_modules
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Testing and coverage
+coverage
+.nyc_output
+test-results
+junit.xml
+
+# Environment files
+.env*
+!.env.example
+
+# Git and CI/CD
+.git
+.gitignore
+.github
+.claude
+
+# IDE and editor files
+.vscode
+.idea
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Logs
+logs
+*.log
+
+# Build outputs (excluding contracts)
+dist
+build
+!artifacts
+!cache
+
+# Documentation
+README.md
+docs
+*.md
+
+# Docker files
+Dockerfile*
+docker-compose*
+
+# Temporary files
+tmp
+temp
+*.tmp

@@ -1,0 +1,196 @@
+# Cloud Build configuration for C12USD smart contract deployment
+steps:
+  # Step 1: Environment setup and validation
+  - name: 'gcr.io/cloud-builders/gcloud'
+    id: 'validate-contract-environment'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "🔍 Validating smart contract deployment environment..."
+        echo "Project: ${PROJECT_ID}"
+        echo "Environment: ${_ENVIRONMENT}"
+        echo "Contact: ${_CONTACT_EMAIL}"
+        echo "Deployer Key Secret: ${_DEPLOYER_KEY}"
+
+        # Verify secrets exist
+        gcloud secrets describe ${_DEPLOYER_KEY} --project=${PROJECT_ID}
+        gcloud secrets describe bsc_rpc_url --project=${PROJECT_ID}
+        gcloud secrets describe polygon_rpc_url --project=${PROJECT_ID}
+
+  # Step 2: Install dependencies and compile contracts
+  - name: 'node:20-alpine'
+    id: 'compile-contracts'
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "📦 Installing contract dependencies..."
+        npm install -g pnpm@10.17.1
+        pnpm install --frozen-lockfile
+
+        echo "🔨 Compiling smart contracts..."
+        pnpm compile
+
+        echo "✅ Running contract tests..."
+        pnpm test
+
+        echo "📋 Generating deployment report..."
+        echo "Contract compilation completed at: $$(date)" > /tmp/deployment-report.txt
+        echo "Network: BSC Mainnet (56) + Polygon Mainnet (137)" >> /tmp/deployment-report.txt
+        echo "Build ID: ${BUILD_ID}" >> /tmp/deployment-report.txt
+
+  # Step 3: Deploy to BSC Mainnet
+  - name: 'node:20-alpine'
+    id: 'deploy-bsc-mainnet'
+    env:
+      - 'NETWORK=bsc'
+      - 'NODE_ENV=production'
+    secretEnv: ['DEPLOYER_PRIVATE_KEY', 'BSC_RPC_URL']
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "🌐 Deploying C12USD contracts to BSC Mainnet..."
+
+        # Set environment variables for deployment
+        export BSC_RPC=$$BSC_RPC_URL
+        export DEPLOYER_PRIVATE_KEY=$$DEPLOYER_PRIVATE_KEY
+
+        # Deploy contracts
+        pnpm hardhat run scripts/deploy.js --network bsc
+
+        # Save deployment addresses
+        if [ -f "deployments/bsc/deployed-addresses.json" ]; then
+          echo "✅ BSC deployment successful!"
+          cat deployments/bsc/deployed-addresses.json >> /tmp/deployment-report.txt
+        else
+          echo "❌ BSC deployment failed - no addresses file found"
+          exit 1
+        fi
+
+  # Step 4: Deploy to Polygon Mainnet
+  - name: 'node:20-alpine'
+    id: 'deploy-polygon-mainnet'
+    env:
+      - 'NETWORK=polygon'
+      - 'NODE_ENV=production'
+    secretEnv: ['DEPLOYER_PRIVATE_KEY', 'POLYGON_RPC_URL']
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "🔷 Deploying C12USD contracts to Polygon Mainnet..."
+
+        # Set environment variables for deployment
+        export POLYGON_RPC=$$POLYGON_RPC_URL
+        export DEPLOYER_PRIVATE_KEY=$$DEPLOYER_PRIVATE_KEY
+
+        # Deploy contracts
+        pnpm hardhat run scripts/deploy.js --network polygon
+
+        # Save deployment addresses
+        if [ -f "deployments/polygon/deployed-addresses.json" ]; then
+          echo "✅ Polygon deployment successful!"
+          cat deployments/polygon/deployed-addresses.json >> /tmp/deployment-report.txt
+        else
+          echo "❌ Polygon deployment failed - no addresses file found"
+          exit 1
+        fi
+
+  # Step 5: Verify contracts on block explorers
+  - name: 'node:20-alpine'
+    id: 'verify-contracts'
+    secretEnv: ['BSC_SCAN_API_KEY', 'POLYGON_SCAN_API_KEY']
+    entrypoint: 'sh'
+    args:
+      - '-c'
+      - |
+        echo "🔍 Verifying contracts on block explorers..."
+
+        # Verify BSC contracts
+        if [ -f "deployments/bsc/deployed-addresses.json" ]; then
+          echo "Verifying BSC contracts..."
+          pnpm hardhat verify --network bsc $$(cat deployments/bsc/deployed-addresses.json | jq -r '.C12USDToken')
+          pnpm hardhat verify --network bsc $$(cat deployments/bsc/deployed-addresses.json | jq -r '.MintRedeemGateway')
+        fi
+
+        # Verify Polygon contracts
+        if [ -f "deployments/polygon/deployed-addresses.json" ]; then
+          echo "Verifying Polygon contracts..."
+          pnpm hardhat verify --network polygon $$(cat deployments/polygon/deployed-addresses.json | jq -r '.C12USDToken')
+          pnpm hardhat verify --network polygon $$(cat deployments/polygon/deployed-addresses.json | jq -r '.MintRedeemGateway')
+        fi
+
+  # Step 6: Update deployment documentation
+  - name: 'gcr.io/cloud-builders/git'
+    id: 'update-documentation'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        echo "📝 Updating deployment documentation..."
+
+        # Create deployment summary
+        echo "# C12USD Smart Contract Deployment - Build ${BUILD_ID}" > DEPLOYMENT_SUMMARY.md
+        echo "**Deployment Date**: $$(date)" >> DEPLOYMENT_SUMMARY.md
+        echo "**Environment**: ${_ENVIRONMENT}" >> DEPLOYMENT_SUMMARY.md
+        echo "**Contact**: ${_CONTACT_EMAIL}" >> DEPLOYMENT_SUMMARY.md
+        echo "" >> DEPLOYMENT_SUMMARY.md
+
+        # Add contract addresses if available
+        if [ -f "deployments/bsc/deployed-addresses.json" ]; then
+          echo "## BSC Mainnet Contracts" >> DEPLOYMENT_SUMMARY.md
+          cat deployments/bsc/deployed-addresses.json >> DEPLOYMENT_SUMMARY.md
+          echo "" >> DEPLOYMENT_SUMMARY.md
+        fi
+
+        if [ -f "deployments/polygon/deployed-addresses.json" ]; then
+          echo "## Polygon Mainnet Contracts" >> DEPLOYMENT_SUMMARY.md
+          cat deployments/polygon/deployed-addresses.json >> DEPLOYMENT_SUMMARY.md
+          echo "" >> DEPLOYMENT_SUMMARY.md
+        fi
+
+        echo "## Deployment Report" >> DEPLOYMENT_SUMMARY.md
+        cat /tmp/deployment-report.txt >> DEPLOYMENT_SUMMARY.md
+
+  # Step 7: Store deployment artifacts
+  - name: 'gcr.io/cloud-builders/gsutil'
+    id: 'store-artifacts'
+    args:
+      - 'cp'
+      - '-r'
+      - 'deployments/'
+      - 'gs://c12ai-dao-deployment-artifacts/smart-contracts/${BUILD_ID}/'
+
+# Secret environment variables
+availableSecrets:
+  secretManager:
+    - versionName: projects/c12ai-dao/secrets/${_DEPLOYER_KEY}/versions/latest
+      env: 'DEPLOYER_PRIVATE_KEY'
+    - versionName: projects/c12ai-dao/secrets/bsc_rpc_url/versions/latest
+      env: 'BSC_RPC_URL'
+    - versionName: projects/c12ai-dao/secrets/polygon_rpc_url/versions/latest
+      env: 'POLYGON_RPC_URL'
+    - versionName: projects/c12ai-dao/secrets/bsc_scan_api_key/versions/latest
+      env: 'BSC_SCAN_API_KEY'
+    - versionName: projects/c12ai-dao/secrets/polygon_scan_api_key/versions/latest
+      env: 'POLYGON_SCAN_API_KEY'
+
+# Substitution variables
+substitutions:
+  _DEPLOYER_KEY: 'ops_signer_key'
+  _ENVIRONMENT: 'production'
+  _CONTACT_EMAIL: 'admin@carnival12.com'
+
+# Build options
+options:
+  machineType: 'E2_HIGHCPU_8'
+  substitution_option: 'ALLOW_LOOSE'
+  logging: CLOUD_LOGGING_ONLY
+
+# Timeout for contract deployment
+timeout: '1800s' # 30 minutes
+
+# Service account for the build
+serviceAccount: 'projects/c12ai-dao/serviceAccounts/c12usd-production-cloudbuild@c12ai-dao.iam.gserviceaccount.com'

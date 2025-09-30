@@ -1,0 +1,11 @@
+{
+  "network": "Polygon Mainnet",
+  "chainId": 137,
+  "tokenAddress": "0xD85F049E881D899Bd1a3600A58A08c2eA4f34811",
+  "treasuryAddress": "0x7903c63CB9f42284d03BC2a124474760f9C1390b",
+  "transactionHash": "0x4942f1a1d14704166f03161325ba62f343e5fb45dbcf77007183168297c226c4",
+  "blockNumber": 77058723,
+  "gasUsed": "76774",
+  "amountMinted": "100000000.0",
+  "timestamp": "2025-09-29T19:59:37.141Z"
+}

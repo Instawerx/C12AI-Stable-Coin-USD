@@ -1,0 +1,59 @@
+{
+  "name": "c12usd-user-frontend",
+  "version": "0.1.0",
+  "description": "C12USD User Frontend - Modern stablecoin interface with DAO features",
+  "private": true,
+  "scripts": {
+    "dev": "next dev -p 3001",
+    "build": "next build",
+    "start": "next start -p 3001",
+    "lint": "next lint",
+    "type-check": "tsc --noEmit",
+    "build:firebase": "npm run build && firebase deploy --only hosting:user-app"
+  },
+  "dependencies": {
+    "@next/font": "^14.0.0",
+    "@rainbow-me/rainbowkit": "^2.0.0",
+    "@tanstack/react-query": "^5.8.0",
+    "axios": "^1.6.0",
+    "clsx": "^2.0.0",
+    "date-fns": "^2.30.0",
+    "ethers": "^6.8.0",
+    "firebase": "^10.7.0",
+    "framer-motion": "^10.18.0",
+    "lucide-react": "^0.294.0",
+    "next": "^14.0.0",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-hook-form": "^7.47.0",
+    "react-hot-toast": "^2.4.1",
+    "recharts": "^2.8.0",
+    "tailwind-merge": "^2.6.0",
+    "viem": "^2.0.0",
+    "wagmi": "^2.0.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/forms": "^0.5.0",
+    "@tailwindcss/typography": "^0.5.0",
+    "@types/node": "^20.0.0",
+    "@types/react": "^18.0.0",
+    "@types/react-dom": "^18.0.0",
+    "autoprefixer": "^10.4.0",
+    "eslint": "^8.0.0",
+    "eslint-config-next": "^14.0.0",
+    "postcss": "^8.4.0",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.0.0"
+  },
+  "keywords": [
+    "stablecoin",
+    "defi",
+    "dao",
+    "react",
+    "nextjs",
+    "web3",
+    "crypto"
+  ],
+  "author": "C12AI DAO",
+  "license": "MIT"
+}

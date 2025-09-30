@@ -1,0 +1,14 @@
+{
+  "network": {
+    "name": "matic",
+    "chainId": 137
+  },
+  "contracts": {
+    "C12USDToken": "0xD85F049E881D899Bd1a3600A58A08c2eA4f34811",
+    "MintRedeemGateway": "0xF3a23bbebC06435dF16370F879cD808c408f702D",
+    "LayerZeroEndpoint": "0x1a44076050125825900e736c501f859c50fE728c"
+  },
+  "deployer": "0x7903c63CB9f42284d03BC2a124474760f9C1390b",
+  "timestamp": "2025-09-28T19:09:35.375Z",
+  "blockNumber": 77016778
+}

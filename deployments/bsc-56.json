@@ -1,0 +1,14 @@
+{
+  "network": {
+    "name": "bsc",
+    "chainId": 56
+  },
+  "contracts": {
+    "C12USDToken": "0x6fa920C5c676ac15AF6360D9D755187a6C87bd58",
+    "MintRedeemGateway": "0x8303Ac615266d5b9940b74332503f25D092F5f13",
+    "LayerZeroEndpoint": "0x1a44076050125825900e736c501f859c50fE728c"
+  },
+  "deployer": "0x7903c63CB9f42284d03BC2a124474760f9C1390b",
+  "timestamp": "2025-09-28T19:09:35.375Z",
+  "blockNumber": null
+}

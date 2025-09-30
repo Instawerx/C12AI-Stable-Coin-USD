@@ -1,0 +1,124 @@
+{
+  "indexes": [
+    {
+      "name": "user_address_idx",
+      "table": "users",
+      "columns": ["address"],
+      "unique": true,
+      "description": "Unique index on user wallet address for fast lookups"
+    },
+    {
+      "name": "user_email_idx",
+      "table": "users",
+      "columns": ["email"],
+      "unique": true,
+      "description": "Unique index on user email for authentication"
+    },
+    {
+      "name": "mint_receipt_user_status_idx",
+      "table": "mint_receipts",
+      "columns": ["userId", "status", "createdAt"],
+      "description": "Compound index for user's mint receipts by status and date"
+    },
+    {
+      "name": "mint_receipt_payment_id_idx",
+      "table": "mint_receipts",
+      "columns": ["paymentId"],
+      "unique": true,
+      "description": "Unique index on payment ID for webhook processing"
+    },
+    {
+      "name": "mint_receipt_nonce_idx",
+      "table": "mint_receipts",
+      "columns": ["nonce"],
+      "unique": true,
+      "description": "Unique index on nonce for replay attack prevention"
+    },
+    {
+      "name": "mint_receipt_tx_hash_idx",
+      "table": "mint_receipts",
+      "columns": ["txHash"],
+      "description": "Index on transaction hash for blockchain reconciliation"
+    },
+    {
+      "name": "redeem_receipt_user_status_idx",
+      "table": "redeem_receipts",
+      "columns": ["userId", "status", "createdAt"],
+      "description": "Compound index for user's redeem receipts by status and date"
+    },
+    {
+      "name": "redeem_receipt_nonce_idx",
+      "table": "redeem_receipts",
+      "columns": ["nonce"],
+      "unique": true,
+      "description": "Unique index on nonce for replay attack prevention"
+    },
+    {
+      "name": "redeem_receipt_burn_tx_idx",
+      "table": "redeem_receipts",
+      "columns": ["burnTxHash"],
+      "description": "Index on burn transaction hash for blockchain tracking"
+    },
+    {
+      "name": "redeem_receipt_payout_id_idx",
+      "table": "redeem_receipts",
+      "columns": ["payoutId"],
+      "unique": true,
+      "description": "Unique index on payout ID for payment processing"
+    },
+    {
+      "name": "reserve_snapshot_timestamp_idx",
+      "table": "reserve_snapshots",
+      "columns": ["timestamp"],
+      "description": "Index on timestamp for chronological queries"
+    },
+    {
+      "name": "reserve_snapshot_block_idx",
+      "table": "reserve_snapshots",
+      "columns": ["blockNumber"],
+      "description": "Index on block number for blockchain synchronization"
+    },
+    {
+      "name": "audit_log_entity_idx",
+      "table": "audit_logs",
+      "columns": ["entityType", "entityId", "timestamp"],
+      "description": "Compound index for querying audit logs by entity"
+    },
+    {
+      "name": "audit_log_user_address_idx",
+      "table": "audit_logs",
+      "columns": ["userAddress", "timestamp"],
+      "description": "Index for querying user activity logs"
+    },
+    {
+      "name": "audit_log_admin_address_idx",
+      "table": "audit_logs",
+      "columns": ["adminAddress", "timestamp"],
+      "description": "Index for querying admin activity logs"
+    },
+    {
+      "name": "audit_log_timestamp_idx",
+      "table": "audit_logs",
+      "columns": ["timestamp"],
+      "description": "Index on timestamp for chronological audit queries"
+    },
+    {
+      "name": "system_config_key_idx",
+      "table": "system_config",
+      "columns": ["key"],
+      "unique": true,
+      "description": "Unique index on configuration key"
+    }
+  ],
+  "performance_notes": {
+    "mint_receipts": "Consider partitioning by month if volume exceeds 1M records",
+    "redeem_receipts": "Consider partitioning by month if volume exceeds 1M records",
+    "audit_logs": "Consider archival strategy after 2 years",
+    "reserve_snapshots": "Index on timestamp enables efficient time-series queries"
+  },
+  "maintenance": {
+    "reindex_schedule": "Monthly during low-traffic hours",
+    "analyze_schedule": "Weekly",
+    "vacuum_schedule": "Daily for transaction tables"
+  }
+}

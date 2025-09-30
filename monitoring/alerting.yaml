@@ -1,0 +1,223 @@
+# C12USD Alerting Configuration
+# This configuration defines alerting policies for monitoring the C12USD system
+
+apiVersion: monitoring.google.com/v1
+kind: AlertPolicy
+
+# High Error Rate Alert
+---
+metadata:
+  name: c12usd-high-error-rate
+  description: Alert when error rate exceeds 5% over 5 minutes
+spec:
+  conditions:
+    - displayName: "HTTP Error Rate > 5%"
+      conditionThreshold:
+        filter: 'resource.type="gce_instance" AND metric.type="custom.googleapis.com/c12usd/http_requests_total"'
+        comparison: COMPARISON_GREATER_THAN
+        thresholdValue: 0.05
+        duration: "300s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_RATE
+            crossSeriesReducer: REDUCE_MEAN
+            groupByFields:
+              - "metric.label.status"
+      combiner: OR
+
+  alertStrategy:
+    autoClose: "86400s" # 24 hours
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/email-alerts
+    - projects/c12usd/notificationChannels/slack-alerts
+
+  severity: ERROR
+
+# High Response Latency Alert
+---
+metadata:
+  name: c12usd-high-latency
+  description: Alert when API response time exceeds 2 seconds
+spec:
+  conditions:
+    - displayName: "API Latency > 2s"
+      conditionThreshold:
+        filter: 'resource.type="gce_instance" AND metric.type="custom.googleapis.com/c12usd/http_request_duration_ms"'
+        comparison: COMPARISON_GREATER_THAN
+        thresholdValue: 2000
+        duration: "180s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_PERCENTILE_95
+            crossSeriesReducer: REDUCE_MEAN
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/email-alerts
+
+  severity: WARNING
+
+# Database Connection Alert
+---
+metadata:
+  name: c12usd-database-down
+  description: Alert when database health check fails
+spec:
+  conditions:
+    - displayName: "Database Health Check Failed"
+      conditionThreshold:
+        filter: 'resource.type="gce_instance" AND metric.type="custom.googleapis.com/c12usd/database_health"'
+        comparison: COMPARISON_EQUAL
+        thresholdValue: 0
+        duration: "60s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_MEAN
+            crossSeriesReducer: REDUCE_MEAN
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/email-alerts
+    - projects/c12usd/notificationChannels/pager-duty
+
+  severity: CRITICAL
+
+# Memory Usage Alert
+---
+metadata:
+  name: c12usd-high-memory
+  description: Alert when memory usage exceeds 80%
+spec:
+  conditions:
+    - displayName: "Memory Usage > 80%"
+      conditionThreshold:
+        filter: 'resource.type="gce_instance" AND metric.type="compute.googleapis.com/instance/memory/utilization"'
+        comparison: COMPARISON_GREATER_THAN
+        thresholdValue: 0.8
+        duration: "300s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_MEAN
+            crossSeriesReducer: REDUCE_MEAN
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/email-alerts
+
+  severity: WARNING
+
+# Mint/Redeem Volume Anomaly
+---
+metadata:
+  name: c12usd-volume-anomaly
+  description: Alert on unusual transaction volume (too high or too low)
+spec:
+  conditions:
+    - displayName: "Unusual Transaction Volume"
+      conditionThreshold:
+        filter: 'resource.type="gce_instance" AND metric.type="custom.googleapis.com/c12usd/mint_requests_total"'
+        comparison: COMPARISON_GREATER_THAN
+        thresholdValue: 1000 # Adjust based on normal volume
+        duration: "300s"
+        aggregations:
+          - alignmentPeriod: "300s"
+            perSeriesAligner: ALIGN_RATE
+            crossSeriesReducer: REDUCE_SUM
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/security-alerts
+
+  severity: WARNING
+
+# Security Event Alert
+---
+metadata:
+  name: c12usd-security-event
+  description: Alert on security-related events
+spec:
+  conditions:
+    - displayName: "Security Event Detected"
+      conditionThreshold:
+        filter: 'resource.type="gce_instance" AND metric.type="custom.googleapis.com/c12usd/security_events_total"'
+        comparison: COMPARISON_GREATER_THAN
+        thresholdValue: 0
+        duration: "60s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_RATE
+            crossSeriesReducer: REDUCE_SUM
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/security-alerts
+    - projects/c12usd/notificationChannels/pager-duty
+
+  severity: CRITICAL
+
+# Proof of Reserves Alert
+---
+metadata:
+  name: c12usd-por-ratio-low
+  description: Alert when reserve ratio falls below 95%
+spec:
+  conditions:
+    - displayName: "Reserve Ratio < 95%"
+      conditionThreshold:
+        filter: 'resource.type="gce_instance" AND metric.type="custom.googleapis.com/c12usd/reserve_ratio"'
+        comparison: COMPARISON_LESS_THAN
+        thresholdValue: 0.95
+        duration: "60s"
+        aggregations:
+          - alignmentPeriod: "60s"
+            perSeriesAligner: ALIGN_MEAN
+            crossSeriesReducer: REDUCE_MEAN
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/finance-alerts
+    - projects/c12usd/notificationChannels/pager-duty
+
+  severity: CRITICAL
+
+# Budget Alert
+---
+metadata:
+  name: c12usd-budget-80-percent
+  description: Alert when 80% of monthly budget is consumed
+spec:
+  conditions:
+    - displayName: "Budget 80% Consumed"
+      conditionThreshold:
+        filter: 'metric.type="billing.googleapis.com/billing/total_cost"'
+        comparison: COMPARISON_GREATER_THAN
+        thresholdValue: 800 # 80% of $1000 monthly budget
+        duration: "3600s"
+        aggregations:
+          - alignmentPeriod: "3600s"
+            perSeriesAligner: ALIGN_SUM
+            crossSeriesReducer: REDUCE_SUM
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/finance-alerts
+
+  severity: WARNING
+
+# SLO Violations
+---
+metadata:
+  name: c12usd-slo-violation
+  description: Alert when SLO (99% uptime) is violated
+spec:
+  conditions:
+    - displayName: "SLO Violation - Uptime < 99%"
+      conditionThreshold:
+        filter: 'resource.type="gce_instance" AND metric.type="custom.googleapis.com/c12usd/uptime_ratio"'
+        comparison: COMPARISON_LESS_THAN
+        thresholdValue: 0.99
+        duration: "300s"
+        aggregations:
+          - alignmentPeriod: "300s"
+            perSeriesAligner: ALIGN_MEAN
+            crossSeriesReducer: REDUCE_MEAN
+
+  notificationChannels:
+    - projects/c12usd/notificationChannels/slo-alerts
+    - projects/c12usd/notificationChannels/management-alerts
+
+  severity: ERROR

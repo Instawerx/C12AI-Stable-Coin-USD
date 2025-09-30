@@ -1,0 +1,18 @@
+{
+  "projects": {
+    "default": "c12ai-dao",
+    "production": "c12ai-dao",
+    "staging": "c12ai-dao-staging"
+  },
+  "targets": {
+    "c12ai-dao": {
+      "hosting": {
+        "c12usd-frontend": [
+          "c12ai-dao"
+        ]
+      }
+    }
+  },
+  "etags": {},
+  "dataconnectEmulatorConfig": {}
+}

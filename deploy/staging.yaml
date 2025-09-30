@@ -1,0 +1,139 @@
+# Staging Environment Configuration for C12USD
+# Google Cloud Run deployment configuration
+
+apiVersion: serving.knative.dev/v1
+kind: Service
+metadata:
+  name: c12usd-backend-staging
+  namespace: default
+  labels:
+    app: c12usd-backend
+    environment: staging
+  annotations:
+    run.googleapis.com/ingress: all
+    run.googleapis.com/execution-environment: gen2
+spec:
+  template:
+    metadata:
+      labels:
+        app: c12usd-backend
+        environment: staging
+        version: ${IMAGE_TAG}
+      annotations:
+        # Scaling configuration
+        autoscaling.knative.dev/minScale: "0"
+        autoscaling.knative.dev/maxScale: "10"
+
+        # Resource allocation
+        run.googleapis.com/memory: "1Gi"
+        run.googleapis.com/cpu: "1"
+
+        # Networking
+        run.googleapis.com/vpc-access-connector: projects/${PROJECT_ID}/locations/us-central1/connectors/c12usd-connector
+        run.googleapis.com/vpc-access-egress: private-ranges-only
+
+        # Security
+        run.googleapis.com/execution-environment: gen2
+        run.googleapis.com/service-account: cloudbuild-sa@${PROJECT_ID}.iam.gserviceaccount.com
+
+        # Monitoring
+        run.googleapis.com/cpu-throttling: "false"
+    spec:
+      containerConcurrency: 1000
+      timeoutSeconds: 300
+      serviceAccountName: cloudbuild-sa@${PROJECT_ID}.iam.gserviceaccount.com
+      containers:
+      - name: c12usd-backend
+        image: us-central1-docker.pkg.dev/${PROJECT_ID}/c12usd-repo/c12usd-backend:${IMAGE_TAG}
+        ports:
+        - name: http1
+          containerPort: 3000
+          protocol: TCP
+
+        # Environment variables
+        env:
+        - name: NODE_ENV
+          value: "staging"
+        - name: ENVIRONMENT
+          value: "staging"
+        - name: PORT
+          value: "3000"
+        - name: LOG_LEVEL
+          value: "debug"
+        - name: REGION
+          value: "us-central1"
+
+        # Secrets from Google Secret Manager
+        - name: DATABASE_URL
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: staging-database-url
+        - name: BSC_RPC
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: bsc-rpc-url
+        - name: POLYGON_RPC
+          valueFrom:
+            secretKeyRef:
+              key: latest
+              name: polygon-rpc-url
+
+        # Resource limits and requests
+        resources:
+          limits:
+            cpu: "1"
+            memory: "1Gi"
+          requests:
+            cpu: "0.5"
+            memory: "512Mi"
+
+        # Health checks
+        livenessProbe:
+          httpGet:
+            path: /health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 30
+          periodSeconds: 30
+          timeoutSeconds: 5
+          failureThreshold: 3
+          successThreshold: 1
+
+        readinessProbe:
+          httpGet:
+            path: /ready
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 10
+          timeoutSeconds: 3
+          failureThreshold: 3
+          successThreshold: 1
+
+        startupProbe:
+          httpGet:
+            path: /health
+            port: 3000
+            scheme: HTTP
+          initialDelaySeconds: 10
+          periodSeconds: 5
+          timeoutSeconds: 3
+          failureThreshold: 10
+          successThreshold: 1
+
+---
+
+# Traffic allocation for staging
+apiVersion: serving.knative.dev/v1
+kind: Route
+metadata:
+  name: c12usd-backend-staging-route
+  labels:
+    app: c12usd-backend
+    environment: staging
+spec:
+  traffic:
+  - percent: 100
+    latestRevision: true
