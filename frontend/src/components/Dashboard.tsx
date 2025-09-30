@@ -18,6 +18,10 @@ import TransferForm from './TransferForm';
 import RedeemForm from './RedeemForm';
 import ProofOfReserves from './ProofOfReserves';
 import TransactionHistory from './TransactionHistory';
+import MarketOverview from './MarketOverview';
+import PortfolioAnalytics from './PortfolioAnalytics';
+import RecentActivity from './RecentActivity';
+import MultiChainBalance from './MultiChainBalance';
 import { getChainConfig } from '@/lib/wagmi';
 
 const Dashboard: React.FC = () => {
@@ -99,15 +103,38 @@ const Dashboard: React.FC = () => {
           {/* Tab Content */}
           <div className="animate-fade-in">
             {activeTab === 'overview' && (
-              <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-                {/* Left column - Token Balance */}
-                <div className="xl:col-span-2 space-y-6">
+              <div className="space-y-6">
+                {/* Top row - Main metrics */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-6">
                   <div className="animate-slide-in">
                     <TokenBalance />
                   </div>
+                  <div className="animate-slide-in" style={{ animationDelay: '100ms' }}>
+                    <MultiChainBalance />
+                  </div>
+                  <div className="animate-slide-in" style={{ animationDelay: '200ms' }}>
+                    <ProofOfReserves />
+                  </div>
+                </div>
+
+                {/* Second row - Analytics and Market */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="animate-slide-in" style={{ animationDelay: '300ms' }}>
+                    <PortfolioAnalytics />
+                  </div>
+                  <div className="animate-slide-in" style={{ animationDelay: '400ms' }}>
+                    <MarketOverview />
+                  </div>
+                </div>
+
+                {/* Third row - Activity and Quick Actions */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                  <div className="lg:col-span-2 animate-slide-in" style={{ animationDelay: '500ms' }}>
+                    <RecentActivity />
+                  </div>
 
                   {/* Quick Actions */}
-                  <div className="card hover-glow animate-fade-in">
+                  <div className="card hover-glow animate-fade-in" style={{ animationDelay: '600ms' }}>
                     <div className="card-header">
                       <h3 className="text-lg font-semibold text-white flex items-center space-x-2">
                         <TrendingUp className="w-5 h-5 text-primary-400" />
@@ -115,29 +142,31 @@ const Dashboard: React.FC = () => {
                       </h3>
                     </div>
                     <div className="card-body">
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      <div className="space-y-3">
                         <button
                           onClick={() => setActiveTab('transfer')}
-                          className="btn btn-outline hover-lift flex items-center justify-center space-x-2 py-3"
+                          className="btn btn-outline hover-lift flex items-center justify-center space-x-2 py-3 w-full"
                         >
                           <ArrowUpDown className="w-4 h-4" />
                           <span>{t('dashboard:dashboard.transferTokens')}</span>
                         </button>
                         <button
                           onClick={() => setActiveTab('redeem')}
-                          className="btn btn-primary hover-lift flex items-center justify-center space-x-2 py-3"
+                          className="btn btn-primary hover-lift flex items-center justify-center space-x-2 py-3 w-full"
                         >
                           <DollarSign className="w-4 h-4" />
                           <span>{t('dashboard:dashboard.redeemToUsd')}</span>
                         </button>
+                        <button
+                          onClick={() => setActiveTab('history')}
+                          className="btn btn-outline hover-lift flex items-center justify-center space-x-2 py-3 w-full"
+                        >
+                          <Activity className="w-4 h-4" />
+                          <span>{t('common:navigation.history')}</span>
+                        </button>
                       </div>
                     </div>
                   </div>
-                </div>
-
-                {/* Right column - Proof of Reserves */}
-                <div className="animate-slide-in">
-                  <ProofOfReserves />
                 </div>
               </div>
             )}

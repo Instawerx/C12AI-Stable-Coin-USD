@@ -54,12 +54,12 @@ Phase 5: Full Bank & Scale - Q4 2025 - Q1 2026
 - [x] Logo integration
 
 ### Remaining Phase 1 Tasks ⏳
-- [ ] Complete dashboard layout
-- [ ] User profile page
-- [ ] Settings page
-- [ ] Transaction history UI
-- [ ] Wallet balance display
-- [ ] WalletConnect Project ID configuration
+- [x] Complete dashboard layout
+- [x] User profile page
+- [x] Settings page
+- [x] Transaction history UI
+- [x] Wallet balance display
+- [x] WalletConnect Project ID configuration
 
 ---
 

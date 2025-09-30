@@ -15,8 +15,7 @@ import {
   ChevronLeft,
   ChevronRight,
   X,
-  Copy,
-  CheckCircle2
+  Copy
 } from 'lucide-react';
 import { ApiService, handleApiError } from '@/lib/api';
 import { ContractHelpers } from '@/lib/contracts';
@@ -36,7 +35,7 @@ interface Transaction {
   gasPrice?: string;
 }
 
-const TransactionHistoryEnhanced: React.FC = () => {
+const TransactionHistory: React.FC = () => {
   const { address } = useAccount();
   const chainId = useChainId();
   const chainConfig = getChainConfig(chainId);
@@ -200,16 +199,16 @@ const TransactionHistoryEnhanced: React.FC = () => {
             </button>
           </div>
 
-          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-3">
             {/* Search */}
-            <div className="relative flex-1 sm:flex-initial">
+            <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
               <input
                 type="text"
                 placeholder="Search by hash or address..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 pr-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white text-sm w-full
+                className="pl-10 pr-3 py-2 bg-gray-800 border border-gray-600 rounded-md text-white text-sm
                           focus:ring-2 focus:ring-primary-500 focus:border-transparent"
               />
             </div>
@@ -226,16 +225,6 @@ const TransactionHistoryEnhanced: React.FC = () => {
               <option value="mint">Mints</option>
               <option value="redeem">Redemptions</option>
             </select>
-
-            {/* Export Button */}
-            <button
-              onClick={exportToCSV}
-              disabled={filteredTransactions.length === 0}
-              className="btn btn-outline btn-sm flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              <Download className="w-4 h-4" />
-              <span>Export</span>
-            </button>
           </div>
         </div>
       </div>
@@ -284,15 +273,14 @@ const TransactionHistoryEnhanced: React.FC = () => {
             </div>
           ) : (
             <div className="space-y-4">
-              {paginatedTransactions.map((tx: Transaction) => {
+              {filteredTransactions.map((tx: Transaction) => {
                 const txUrl = tx.hash && chainConfig ?
                   ContractHelpers.getTransactionUrl(chainId, tx.hash) : null;
 
                 return (
                   <div
                     key={tx.id}
-                    className="flex items-center space-x-4 p-3 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors cursor-pointer"
-                    onClick={() => setSelectedTx(tx)}
+                    className="flex items-center space-x-4 p-3 rounded-lg border border-gray-700 hover:border-gray-600 transition-colors"
                   >
                     {/* Transaction Icon */}
                     <div className="flex-shrink-0">
@@ -331,7 +319,6 @@ const TransactionHistoryEnhanced: React.FC = () => {
                             target="_blank"
                             rel="noopener noreferrer"
                             className="text-primary-400 hover:text-primary-300 text-xs flex items-center space-x-1"
-                            onClick={(e) => e.stopPropagation()}
                           >
                             <span>View</span>
                             <ExternalLink className="w-3 h-3" />
@@ -346,188 +333,10 @@ const TransactionHistoryEnhanced: React.FC = () => {
           )}
         </div>
 
-        {/* Pagination */}
-        {totalPages > 1 && !isLoading && !error && filteredTransactions.length > 0 && (
-          <div className="card-footer flex flex-col sm:flex-row items-center justify-between space-y-3 sm:space-y-0">
-            <div className="text-sm text-gray-400">
-              Showing {startIndex + 1}-{Math.min(endIndex, filteredTransactions.length)} of {filteredTransactions.length} transactions
-            </div>
-            <div className="flex items-center space-x-2">
-              <button
-                onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
-                disabled={currentPage === 1}
-                className="p-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <div className="flex items-center space-x-1">
-                {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                  let pageNumber;
-                  if (totalPages <= 7) {
-                    pageNumber = i + 1;
-                  } else if (currentPage <= 4) {
-                    pageNumber = i + 1;
-                  } else if (currentPage >= totalPages - 3) {
-                    pageNumber = totalPages - 6 + i;
-                  } else {
-                    pageNumber = currentPage - 3 + i;
-                  }
-
-                  return (
-                    <button
-                      key={pageNumber}
-                      onClick={() => setCurrentPage(pageNumber)}
-                      className={`px-3 py-1 rounded text-sm transition-colors ${
-                        currentPage === pageNumber
-                          ? 'bg-primary-600 text-white'
-                          : 'text-gray-400 hover:text-white hover:bg-gray-700'
-                      }`}
-                    >
-                      {pageNumber}
-                    </button>
-                  );
-                })}
-              </div>
-              <button
-                onClick={() => setCurrentPage(Math.min(totalPages, currentPage + 1))}
-                disabled={currentPage === totalPages}
-                className="p-2 text-gray-400 hover:text-white disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-              >
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        )}
+        {/* Pagination removed for now */}
       </div>
-
-      {/* Transaction Details Modal */}
-      {selectedTx && (
-        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
-          <div className="card max-w-2xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="card-header flex justify-between items-center">
-              <h3 className="text-lg font-semibold text-white">Transaction Details</h3>
-              <button
-                onClick={() => setSelectedTx(null)}
-                className="p-1 text-gray-400 hover:text-white transition-colors"
-              >
-                <X className="w-5 h-5" />
-              </button>
-            </div>
-            <div className="card-body space-y-4">
-              {/* Transaction Type & Status */}
-              <div className="flex items-center justify-between pb-4 border-b border-gray-700">
-                <div className="flex items-center space-x-3">
-                  <div className="w-12 h-12 rounded-full bg-gray-800 flex items-center justify-center">
-                    {getTransactionIcon(selectedTx.type, selectedTx.status)}
-                  </div>
-                  <div>
-                    <div className="font-medium text-white capitalize">{selectedTx.type}</div>
-                    <div className={`text-sm ${getStatusColor(selectedTx.status)} capitalize`}>
-                      {selectedTx.status}
-                    </div>
-                  </div>
-                </div>
-                <div className="text-right">
-                  <div className="text-2xl font-bold text-white">
-                    {parseFloat(selectedTx.amount).toLocaleString()} C12USD
-                  </div>
-                </div>
-              </div>
-
-              {/* Transaction Details */}
-              <div className="space-y-3">
-                <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                  <span className="text-sm text-gray-400">Transaction Hash</span>
-                  <div className="flex items-center space-x-2">
-                    {selectedTx.hash ? (
-                      <>
-                        <span className="text-sm font-mono text-white">
-                          {selectedTx.hash.slice(0, 10)}...{selectedTx.hash.slice(-8)}
-                        </span>
-                        <button
-                          onClick={() => copyTransactionHash(selectedTx.hash!)}
-                          className="p-1 text-gray-400 hover:text-primary-400 transition-colors"
-                        >
-                          {copiedHash ? (
-                            <CheckCircle2 className="w-4 h-4 text-success-400" />
-                          ) : (
-                            <Copy className="w-4 h-4" />
-                          )}
-                        </button>
-                      </>
-                    ) : (
-                      <span className="text-sm text-gray-500">N/A</span>
-                    )}
-                  </div>
-                </div>
-
-                <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                  <span className="text-sm text-gray-400">Date & Time</span>
-                  <span className="text-sm text-white">
-                    {new Date(selectedTx.createdAt).toLocaleString()}
-                  </span>
-                </div>
-
-                {selectedTx.fromAddress && (
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <span className="text-sm text-gray-400">From</span>
-                    <span className="text-sm font-mono text-white">
-                      {selectedTx.fromAddress.slice(0, 10)}...{selectedTx.fromAddress.slice(-8)}
-                    </span>
-                  </div>
-                )}
-
-                {selectedTx.toAddress && (
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <span className="text-sm text-gray-400">To</span>
-                    <span className="text-sm font-mono text-white">
-                      {selectedTx.toAddress.slice(0, 10)}...{selectedTx.toAddress.slice(-8)}
-                    </span>
-                  </div>
-                )}
-
-                <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                  <span className="text-sm text-gray-400">Network</span>
-                  <span className="text-sm text-white">
-                    {chainConfig?.name || `Chain ID: ${selectedTx.chainId}`}
-                  </span>
-                </div>
-
-                {selectedTx.gasUsed && (
-                  <div className="flex justify-between items-center py-2 border-b border-gray-700">
-                    <span className="text-sm text-gray-400">Gas Used</span>
-                    <span className="text-sm text-white">{selectedTx.gasUsed}</span>
-                  </div>
-                )}
-
-                {selectedTx.gasPrice && (
-                  <div className="flex justify-between items-center py-2">
-                    <span className="text-sm text-gray-400">Gas Price</span>
-                    <span className="text-sm text-white">{selectedTx.gasPrice} Gwei</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Actions */}
-              {selectedTx.hash && chainConfig && (
-                <div className="pt-4">
-                  <a
-                    href={ContractHelpers.getTransactionUrl(chainId, selectedTx.hash)}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="btn btn-primary w-full flex items-center justify-center space-x-2"
-                  >
-                    <span>View on {chainConfig.name} Explorer</span>
-                    <ExternalLink className="w-4 h-4" />
-                  </a>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   );
 };
 
-export default TransactionHistoryEnhanced;
+export default TransactionHistory;

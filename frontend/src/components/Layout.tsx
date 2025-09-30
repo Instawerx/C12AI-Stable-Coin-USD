@@ -11,8 +11,13 @@ import {
   ArrowUpDown,
   Shield,
   Zap,
-  ExternalLink
+  ExternalLink,
+  User,
+  Home,
+  Settings
 } from 'lucide-react';
+import Link from 'next/link';
+import { useRouter } from 'next/router';
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -29,6 +34,7 @@ const Layout: React.FC<LayoutProps> = ({
   const { address, isConnected } = useAccount();
   const chainId = useChainId();
   const chainConfig = getChainConfig(chainId);
+  const router = useRouter();
 
   return (
     <>
@@ -44,15 +50,56 @@ const Layout: React.FC<LayoutProps> = ({
         <nav className="border-b border-gray-700 bg-gray-800/50 backdrop-blur-sm sticky top-0 z-50">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex justify-between items-center h-16">
-              {/* Logo and title */}
-              <div className="flex items-center space-x-3">
-                <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg">
-                  <Coins className="w-5 h-5 text-white" />
-                </div>
-                <div>
-                  <h1 className="text-xl font-bold text-gradient">C12USD</h1>
-                  <p className="text-xs text-gray-400">Cross-chain Stablecoin</p>
-                </div>
+              {/* Logo, title, and navigation */}
+              <div className="flex items-center space-x-8">
+                <Link href="/" className="flex items-center space-x-3 hover:opacity-80 transition-opacity">
+                  <div className="flex items-center justify-center w-8 h-8 bg-gradient-to-r from-primary-500 to-primary-600 rounded-lg">
+                    <Coins className="w-5 h-5 text-white" />
+                  </div>
+                  <div>
+                    <h1 className="text-xl font-bold text-gradient">C12USD</h1>
+                    <p className="text-xs text-gray-400">Cross-chain Stablecoin</p>
+                  </div>
+                </Link>
+
+                {/* Navigation links - only show when connected */}
+                {isConnected && (
+                  <nav className="hidden md:flex items-center space-x-1">
+                    <Link
+                      href="/"
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+                        router.pathname === '/'
+                          ? 'bg-gray-700 text-white'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      <Home className="w-4 h-4" />
+                      <span>Dashboard</span>
+                    </Link>
+                    <Link
+                      href="/profile"
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+                        router.pathname === '/profile'
+                          ? 'bg-gray-700 text-white'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Profile</span>
+                    </Link>
+                    <Link
+                      href="/settings"
+                      className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors flex items-center space-x-2 ${
+                        router.pathname === '/settings'
+                          ? 'bg-gray-700 text-white'
+                          : 'text-gray-400 hover:text-white hover:bg-gray-800'
+                      }`}
+                    >
+                      <Settings className="w-4 h-4" />
+                      <span>Settings</span>
+                    </Link>
+                  </nav>
+                )}
               </div>
 
               {/* Network indicator, language switcher, and wallet connection */}
