@@ -1,0 +1,8 @@
+name: c12usd-production-deploy
+description: C12USD production deployment trigger
+github:
+  owner: Instawerx
+  name: C12AI-Stable-Coin-USD
+  push:
+    branch: ^master$
+filename: cloudbuild.yaml

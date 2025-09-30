@@ -253,7 +253,7 @@ Your current icon is **1.5MB** and needs to be **< 100KB**.
    - Usually takes 3-7 days
    - You'll get email notification when merged
 
----
+---Can we make sure our Docker and
 
 ## 🎉 STEP 8: Verify Listing
 
