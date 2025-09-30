@@ -1,12 +1,52 @@
 import { getDefaultConfig } from '@rainbow-me/rainbowkit';
-import { bsc, polygon } from 'wagmi/chains';
+import { bsc, polygon, mainnet } from 'wagmi/chains';
+import { http } from 'wagmi';
 
-// Get the Wagmi config for RainbowKit
+// Get environment variables
+const projectId = process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default-project-id';
+const infuraApiKey = process.env.NEXT_PUBLIC_INFURA_API_KEY;
+
+// Build Infura RPC URLs
+const getInfuraUrl = (network: string) =>
+  infuraApiKey
+    ? `https://${network}.infura.io/v3/${infuraApiKey}`
+    : undefined;
+
+// Get the Wagmi config for RainbowKit with Infura support
 export const config = getDefaultConfig({
-  appName: 'C12USD',
-  projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || 'default-project-id',
-  chains: [bsc, polygon],
-  ssr: true, // If your dApp uses server side rendering (SSR)
+  appName: 'C12USD Stablecoin',
+  projectId,
+  chains: [bsc, polygon, mainnet],
+  transports: {
+    [bsc.id]: http(
+      getInfuraUrl('bsc-mainnet') ||
+      'https://bsc-dataseed1.binance.org/',
+      {
+        batch: true,
+        retryCount: 3,
+        timeout: 10_000,
+      }
+    ),
+    [polygon.id]: http(
+      getInfuraUrl('polygon-mainnet') ||
+      'https://polygon-rpc.com/',
+      {
+        batch: true,
+        retryCount: 3,
+        timeout: 10_000,
+      }
+    ),
+    [mainnet.id]: http(
+      getInfuraUrl('mainnet') ||
+      'https://eth.public-rpc.com',
+      {
+        batch: true,
+        retryCount: 3,
+        timeout: 10_000,
+      }
+    ),
+  },
+  ssr: true,
 });
 
 // Token icon
@@ -46,3 +86,33 @@ export const GATEWAY_ABI = [
   'function getRedeemFee(uint256 amount) view returns (uint256)',
   'function isPaused() view returns (bool)',
 ] as const;
+
+// Chain configuration
+export const chainConfig = {
+  [bsc.id]: {
+    name: 'BSC',
+    explorer: 'https://bscscan.com',
+    currency: 'BNB',
+    infuraNetwork: 'bsc-mainnet',
+  },
+  [polygon.id]: {
+    name: 'Polygon',
+    explorer: 'https://polygonscan.com',
+    currency: 'MATIC',
+    infuraNetwork: 'polygon-mainnet',
+  },
+  [mainnet.id]: {
+    name: 'Ethereum',
+    explorer: 'https://etherscan.io',
+    currency: 'ETH',
+    infuraNetwork: 'mainnet',
+  },
+} as const;
+
+export function getChainConfig(chainId: number) {
+  return chainConfig[chainId as keyof typeof chainConfig];
+}
+
+export function isSupportedChain(chainId: number): boolean {
+  return chainId in CONTRACT_ADDRESSES;
+}

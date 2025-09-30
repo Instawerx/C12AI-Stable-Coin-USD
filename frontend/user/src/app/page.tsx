@@ -17,6 +17,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { GlassCard } from '../components/ui/GlassCard';
 import { GlassButton } from '../components/ui/GlassButton';
 import { GlassNavbar } from '../components/ui/GlassNavbar';
+import { WalletButton } from '../components/ui/WalletButton';
 
 const features = [
   {
@@ -83,10 +84,16 @@ export default function HomePage() {
         }
         actions={
           <div className="flex items-center gap-3">
+            {/* MetaMask Wallet Button */}
+            <WalletButton />
+
+            {/* Auth Actions */}
             {user ? (
-              <GlassButton variant="primary" size="sm">
-                Dashboard
-              </GlassButton>
+              <Link href="/app/dashboard">
+                <GlassButton variant="primary" size="sm">
+                  Dashboard
+                </GlassButton>
+              </Link>
             ) : (
               <>
                 <Link href="/auth/login">
