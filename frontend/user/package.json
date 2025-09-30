@@ -9,7 +9,10 @@
     "start": "next start -p 3001",
     "lint": "next lint",
     "type-check": "tsc --noEmit",
-    "build:firebase": "npm run build && firebase deploy --only hosting:user-app"
+    "build:firebase": "npm run build && firebase deploy --only hosting:user-app",
+    "build:apphosting": "npm run build",
+    "deploy:apphosting": "firebase deploy --only apphosting",
+    "preview:build": "npm run build && npm run start"
   },
   "dependencies": {
     "@next/font": "^14.0.0",

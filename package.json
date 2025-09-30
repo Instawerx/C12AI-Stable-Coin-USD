@@ -31,7 +31,9 @@
     "setup:secrets": "bash deploy/gcp/scripts/setup-secrets.sh --project-id c12ai-dao --environment production",
     "build:docker": "docker build -t c12usd-backend .",
     "deploy:staging": "gcloud builds submit --config cloudbuild.yaml --substitutions=_ENVIRONMENT=staging",
-    "deploy:prod": "gcloud builds submit --config cloudbuild.yaml --substitutions=_ENVIRONMENT=production"
+    "deploy:prod": "gcloud builds submit --config cloudbuild.yaml --substitutions=_ENVIRONMENT=production",
+    "seed:firestore": "node scripts/seed-firestore.js",
+    "count:firestore": "node scripts/count-firestore-docs.js"
   },
   "keywords": [
     "stablecoin",
@@ -47,6 +49,7 @@
   "devDependencies": {
     "@ethersproject/abi": "^5.8.0",
     "@ethersproject/providers": "^5.8.0",
+    "@faker-js/faker": "^10.0.0",
     "@nomicfoundation/hardhat-chai-matchers": "^2.1.0",
     "@nomicfoundation/hardhat-network-helpers": "^1.1.0",
     "@nomiclabs/hardhat-ethers": "^2.2.3",
@@ -62,6 +65,7 @@
     "chai": "^6.0.1",
     "eslint": "^9.36.0",
     "ethereum-waffle": "^4.0.10",
+    "firebase-admin": "^13.5.0",
     "hardhat": "^2.26.3",
     "hardhat-gas-reporter": "^2.3.0",
     "mocha": "^11.7.2",

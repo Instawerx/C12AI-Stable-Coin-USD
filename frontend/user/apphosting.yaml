@@ -1,0 +1,83 @@
+# Firebase App Hosting Configuration
+# C12USD User Frontend - Next.js 14 App
+# Project: c12ai-dao-b3bbb
+# Documentation: https://firebase.google.com/docs/app-hosting
+
+# Runtime Configuration
+runConfig:
+  # Minimum instances to keep warm (1 for production availability)
+  minInstances: 1
+
+  # Maximum instances for auto-scaling
+  maxInstances: 10
+
+  # Concurrent requests per instance
+  concurrency: 80
+
+  # CPU allocation (1 = 1 vCPU)
+  cpu: 1
+
+  # Memory allocation in MiB
+  memoryMiB: 512
+
+  # Request timeout in seconds
+  timeoutSeconds: 60
+
+# Environment Variables
+# Note: Sensitive variables should be configured via Firebase Console
+# or using Secret Manager for better security
+env:
+  # Node Environment
+  - variable: NODE_ENV
+    value: production
+
+  # Firebase Configuration (Public)
+  - variable: NEXT_PUBLIC_FIREBASE_PROJECT_ID
+    value: c12ai-dao-b3bbb
+
+  - variable: NEXT_PUBLIC_FIREBASE_API_KEY
+    value: AIzaSyCS_f1-nt1oE1MLQtNwA48SMkaLn5ERM4c
+
+  - variable: NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN
+    value: c12ai-dao-b3bbb.firebaseapp.com
+
+  - variable: NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET
+    value: c12ai-dao-b3bbb.firebasestorage.app
+
+  - variable: NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID
+    value: "268788831367"
+
+  - variable: NEXT_PUBLIC_FIREBASE_APP_ID
+    value: 1:268788831367:web:40c645a16c754dfe3d9422
+
+  - variable: NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    value: G-5KZ40WHD28
+
+  # Backend API Configuration
+  - variable: NEXT_PUBLIC_API_URL
+    value: https://c12usd-backend-prod-239414215297.us-central1.run.app
+
+  # App Configuration
+  - variable: NEXT_PUBLIC_APP_URL
+    availability: BUILD
+    secret: app-url
+
+  # WalletConnect Configuration
+  # TODO: Set this via Firebase Console or Secret Manager
+  - variable: NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID
+    availability: BUILD
+    secret: walletconnect-project-id
+
+# Build Configuration (Optional - Firebase auto-detects Next.js)
+# Uncomment if you need custom build settings
+# buildConfig:
+#   runtime: nodejs20
+#   buildCommand: npm run build
+#   outputDir: .next
+
+# Notes:
+# 1. This configuration optimizes for production use
+# 2. Secrets should be managed via Firebase Console > App Hosting > Secrets
+# 3. App Hosting automatically detects Next.js and configures the runtime
+# 4. Environment variables with 'secret' reference require setup in Firebase Console
+# 5. The 'availability: BUILD' makes variables available during build time

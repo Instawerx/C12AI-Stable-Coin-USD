@@ -10,6 +10,8 @@ const nextConfig = {
       'cloudflare-ipfs.com',       // Cloudflare IPFS gateway
     ],
   },
+  // Increase static generation timeout for complex pages
+  staticPageGenerationTimeout: 120,
   env: {
     NEXT_PUBLIC_APP_NAME: 'C12USD',
     NEXT_PUBLIC_APP_DESCRIPTION: 'Cross-chain stablecoin with DAO governance',
