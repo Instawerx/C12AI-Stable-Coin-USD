@@ -90,7 +90,7 @@ interface RobotSimManagement {
   iccid: string; // Integrated Circuit Card ID
   imsi: string;  // International Mobile Subscriber Identity
   msisdn: string; // Mobile phone number
-  carrier: 'verizon' | 'att' | 'tmobile' | 'vodafone' | 'china-mobile';
+  carrier: 'verizon' | 'att' | 'tmobile' | 'vodafone' | 'E sim' |  'china-mobile';
   dataplan: {
     allowance: number; // GB per month
     used: number;
