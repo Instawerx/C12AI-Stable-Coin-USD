@@ -533,8 +533,8 @@ As the economy evolves to include billions of autonomous agents—from delivery 
 - **Application**: https://app.c12usd.com
 - **Documentation**: https://docs.c12usd.com
 - **GitHub**: https://github.com/c12usd
-- **Email**: info@c12usd.com
-- **Technical Support**: technical@c12usd.com
+- **Email**: info@carnival12.com
+- **Technical Support**: technical@carnival12.com
 
 ### Legal Disclaimer
 This whitepaper is for informational purposes only and does not constitute an offer or solicitation to sell shares or securities. C12USD tokens are utility tokens and are not securities. The information contained herein may be subject to change without notice. Prospective users should conduct their own due diligence and consult with appropriate professionals before engaging with the protocol.

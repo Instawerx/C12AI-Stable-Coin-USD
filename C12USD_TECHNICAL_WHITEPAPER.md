@@ -1595,4 +1595,4 @@ private:
 **For the most current technical information, visit:**
 - Documentation: https://docs.c12usd.com
 - GitHub: https://github.com/c12usd
-- Technical Support: technical@c12ai.com
+- Technical Support: technical@carnival12.com
