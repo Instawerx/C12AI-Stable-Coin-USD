@@ -5,7 +5,7 @@
 **October 2025**
 
 **Authors:** C12AI DAO Development Team
-**Contact:** technical@c12ai.com
+**Contact:** technical@carnival12.com
 **Website:** https://c12usd.com
 **GitHub:** https://github.com/c12usd
 
