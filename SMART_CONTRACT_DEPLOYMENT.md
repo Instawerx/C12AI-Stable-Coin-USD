@@ -438,7 +438,7 @@ const isNonceUsed = await mintRedeemGateway.isNonceUsed("0x...");
 ### Deployment Records Location
 - **Local**: `C:\Users\tabor\Downloads\C12USD_project\C12USD\deployments\`
 - **Format**: `{network}-{chainId}.json`
-- **Example**: `bsc-56.json`, `polygonYou previously claimed to deploy but have not. Make sure our enviroment and contracts are ready then deploy to BSC
+- **Example**: `bsc-56.json`, `polygon
 
 ---
 
@@ -457,7 +457,6 @@ const isNonceUsed = await mintRedeemGateway.isNonceUsed("0x...");
 npm run emergency:pause     # Pause all contracts
 npm run emergency:break     # Trip circuit breakers
 ```
-
 #### 2. Flash Loan Attack Mitigation
 ```javascript
 // Disable flash loans immediately

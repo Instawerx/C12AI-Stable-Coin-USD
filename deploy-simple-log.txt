@@ -1,0 +1,12 @@
+[dotenv@17.2.2] injecting env (31) from .env -- tip: ⚙️  specify custom .env file path with { path: '/custom/path/.env' }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 🔐 prevent committing .env to code: https://dotenvx.com/precommit
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  suppress all logs with { quiet: true }
+🚀 Deploying C12DAO system to Polygon mainnet...
+Admin: 0x7903c63CB9f42284d03BC2a124474760f9C1390b
+Network: polygon
+=====================================
+
+Deploying from: 0x7903c63CB9f42284d03BC2a124474760f9C1390b
+Balance: 297.48055572610138803 MATIC
+
+📝 Step 1/5: Deploying C12DAO token...

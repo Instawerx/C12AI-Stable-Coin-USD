@@ -1,0 +1,16 @@
+[dotenv@17.2.2] injecting env (31) from .env -- tip: 📡 auto-backup env with Radar: https://dotenvx.com/radar
+[dotenv@17.2.2] injecting env (0) from .env -- tip: ⚙️  load multiple .env files with { path: ['.env.local', '.env'] }
+[dotenv@17.2.2] injecting env (0) from .env -- tip: 📡 version env with Radar: https://dotenvx.com/radar
+🚀 Deploying C12DAO system to Polygon mainnet...
+Admin: 0x7903c63CB9f42284d03BC2a124474760f9C1390b
+Network: polygon
+=====================================
+
+Deploying from: 0x7903c63CB9f42284d03BC2a124474760f9C1390b
+Balance: 297.48055572610138803 MATIC
+
+Current network gas price: 84.232383484 gwei
+Using gas price: 101.07886018 gwei (120% buffer)
+📝 Step 1/5: Deploying C12DAO token...
+   Gas settings: 101.07886018 gwei
+   ⏳ Waiting for C12DAO deployment confirmation...

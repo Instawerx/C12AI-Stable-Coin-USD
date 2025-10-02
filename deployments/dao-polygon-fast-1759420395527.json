@@ -1,0 +1,24 @@
+{
+  "network": "polygon",
+  "chainId": 137,
+  "timestamp": "2025-10-02T15:53:15.527Z",
+  "contracts": {
+    "C12DAO": "0x26F3d3c2C759acE462882864aa692FBa4512e38B",
+    "Timelock": {
+      "address": "0xfFb85EC3b84ADb0ce35849111E96eC7c4d8494c3",
+      "tx": "0x69809f7209e805cd14f025fa2909e0b1f03bcdee5b11d58ed07cb59f71961c74"
+    },
+    "Governor": {
+      "address": "0x532b0e4184abB5ad0e2b47624258e07487E63eA3",
+      "tx": "0xcc02231b22fc2f864c4c47148c312dcf4afa5d1245bca2306adde69e3d92fa58"
+    },
+    "Treasury": {
+      "address": "0xC33F6e4B62Ab04Dc0826982Cb55Daf02fCEa5c83",
+      "tx": "0x72d428287738fd8eac11ab3a208861443f10ed51278a935e1daabbdbe97a4e6f"
+    },
+    "Staking": {
+      "address": "0xC6C82F86Dc4b2ab0239311D01ABa5907bB907B66",
+      "tx": "0x6016a1c656573d369fd074bcba458aeb8c4e47ae1a497045b2940b2b324120fe"
+    }
+  }
+}

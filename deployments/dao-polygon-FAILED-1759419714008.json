@@ -1,0 +1,13 @@
+{
+  "network": "polygon",
+  "chainId": 137,
+  "deployer": "0x7903c63CB9f42284d03BC2a124474760f9C1390b",
+  "timestamp": "2025-10-02T14:06:23.413Z",
+  "contracts": {
+    "C12DAO": {
+      "address": "0x468d23a99865f960BC4A6546C42F8C16062De90E",
+      "txHash": "0x735db1012f5d5a63b3e2863f3c7a41443487134b0ddd10ab0baaf869aac4c559"
+    }
+  },
+  "error": "INTERNAL_ERROR: could not replace existing tx"
+}
