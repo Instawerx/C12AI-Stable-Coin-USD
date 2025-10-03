@@ -184,7 +184,7 @@ export const WalletButton: React.FC = () => {
 
         {/* Address */}
         <span className="font-mono text-sm">
-          {formatAddress(address)}
+          {address && formatAddress(address)}
         </span>
 
         {/* Chain badge */}

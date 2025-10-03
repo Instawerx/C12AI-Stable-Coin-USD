@@ -288,7 +288,7 @@ export const verifyManualPayment = functions.https.onCall(async (data, context) 
     }
 
     const hasFinanceRole = adminUser.adminRoles.some(
-      (role) => role.role === 'FINANCE_ADMIN' || role.role === 'SUPER_ADMIN'
+      (role: any) => role.role === 'FINANCE_ADMIN' || role.role === 'SUPER_ADMIN'
     );
 
     if (!hasFinanceRole) {
@@ -642,7 +642,7 @@ export const listPayments = functions.https.onCall(async (data, context) => {
     });
 
     // Format response
-    const formattedPayments = payments.map((payment) => ({
+    const formattedPayments = payments.map((payment: any) => ({
       id: payment.id,
       referenceId: payment.referenceId,
       userId: payment.user.id,
@@ -726,34 +726,34 @@ export const getAnalytics = functions.https.onCall(async (data, context) => {
     // Calculate metrics
     const totalPayments = payments.length;
     const totalVolume = payments.reduce(
-      (sum, p) => sum + parseFloat(p.requestedAmount.toString()),
+      (sum: number, p: any) => sum + parseFloat(p.requestedAmount.toString()),
       0
     );
 
-    const completedPayments = payments.filter((p) => p.status === 'COMPLETED');
+    const completedPayments = payments.filter((p: any) => p.status === 'COMPLETED');
     const completedVolume = completedPayments.reduce(
-      (sum, p) => sum + parseFloat(p.requestedAmount.toString()),
+      (sum: number, p: any) => sum + parseFloat(p.requestedAmount.toString()),
       0
     );
 
     const pendingPayments = payments.filter(
-      (p) => p.status === 'PENDING_VERIFICATION' || p.status === 'PENDING_SUBMISSION'
+      (p: any) => p.status === 'PENDING_VERIFICATION' || p.status === 'PENDING_SUBMISSION'
     );
     const pendingVolume = pendingPayments.reduce(
-      (sum, p) => sum + parseFloat(p.requestedAmount.toString()),
+      (sum: number, p: any) => sum + parseFloat(p.requestedAmount.toString()),
       0
     );
 
-    const rejectedPayments = payments.filter((p) => p.status === 'REJECTED');
+    const rejectedPayments = payments.filter((p: any) => p.status === 'REJECTED');
 
     const averageAmount =
       totalPayments > 0 ? totalVolume / totalPayments : 0;
 
     // Calculate average verification time (in hours)
     const verifiedPayments = payments.filter(
-      (p) => p.verifiedAt && p.createdAt
+      (p: any) => p.verifiedAt && p.createdAt
     );
-    const totalVerificationTime = verifiedPayments.reduce((sum, p) => {
+    const totalVerificationTime = verifiedPayments.reduce((sum: number, p: any) => {
       const diff = p.verifiedAt!.getTime() - p.createdAt.getTime();
       return sum + diff / (1000 * 60 * 60); // Convert to hours
     }, 0);
@@ -770,38 +770,38 @@ export const getAnalytics = functions.https.onCall(async (data, context) => {
     // Token breakdown
     const tokenBreakdown = {
       C12USD: {
-        count: payments.filter((p) => p.tokenType === 'C12USD').length,
+        count: payments.filter((p: any) => p.tokenType === 'C12USD').length,
         volume: payments
-          .filter((p) => p.tokenType === 'C12USD')
-          .reduce((sum, p) => sum + parseFloat(p.requestedAmount.toString()), 0),
+          .filter((p: any) => p.tokenType === 'C12USD')
+          .reduce((sum: number, p: any) => sum + parseFloat(p.requestedAmount.toString()), 0),
       },
       C12DAO: {
-        count: payments.filter((p) => p.tokenType === 'C12DAO').length,
+        count: payments.filter((p: any) => p.tokenType === 'C12DAO').length,
         volume: payments
-          .filter((p) => p.tokenType === 'C12DAO')
-          .reduce((sum, p) => sum + parseFloat(p.requestedAmount.toString()), 0),
+          .filter((p: any) => p.tokenType === 'C12DAO')
+          .reduce((sum: number, p: any) => sum + parseFloat(p.requestedAmount.toString()), 0),
       },
     };
 
     // Payment method breakdown
     const paymentMethodBreakdown = {
       CASH_APP: {
-        count: payments.filter((p) => p.paymentMethod === 'CASH_APP').length,
+        count: payments.filter((p: any) => p.paymentMethod === 'CASH_APP').length,
         volume: payments
-          .filter((p) => p.paymentMethod === 'CASH_APP')
-          .reduce((sum, p) => sum + parseFloat(p.requestedAmount.toString()), 0),
+          .filter((p: any) => p.paymentMethod === 'CASH_APP')
+          .reduce((sum: number, p: any) => sum + parseFloat(p.requestedAmount.toString()), 0),
       },
       STABLECOIN: {
-        count: payments.filter((p) => p.paymentMethod === 'STABLECOIN').length,
+        count: payments.filter((p: any) => p.paymentMethod === 'STABLECOIN').length,
         volume: payments
-          .filter((p) => p.paymentMethod === 'STABLECOIN')
-          .reduce((sum, p) => sum + parseFloat(p.requestedAmount.toString()), 0),
+          .filter((p: any) => p.paymentMethod === 'STABLECOIN')
+          .reduce((sum: number, p: any) => sum + parseFloat(p.requestedAmount.toString()), 0),
       },
     };
 
     // Daily stats
     const dailyStatsMap = new Map<string, any>();
-    payments.forEach((payment) => {
+    payments.forEach((payment: any) => {
       const dateKey = payment.createdAt.toISOString().split('T')[0];
       if (!dailyStatsMap.has(dateKey)) {
         dailyStatsMap.set(dateKey, {

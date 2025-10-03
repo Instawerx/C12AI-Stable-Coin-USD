@@ -23,6 +23,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { GlassCard } from '../../../components/ui/GlassCard';
 import { GlassButton } from '../../../components/ui/GlassButton';
 import { Badge } from '../../../components/ui/Badge';
+import { DAOWalletButton } from '../../../components/ui/DAOWalletButton';
 
 // Helper function to map rarity to badge variant
 const rarityToVariant = (rarity: string) => {
@@ -237,22 +238,9 @@ export default function DaoPage() {
           </p>
         </div>
 
-        {!user?.daoMembership ? (
-          <GlassButton variant="primary">
-            <Plus className="w-4 h-4" />
-            Join DAO
-          </GlassButton>
-        ) : (
-          <div className="flex items-center gap-3">
-            <Badge variant="primary" size="lg">
-              {userTier?.name} Member
-            </Badge>
-            <GlassButton variant="secondary">
-              <ExternalLink className="w-4 h-4" />
-              Governance Portal
-            </GlassButton>
-          </div>
-        )}
+        <div className="flex items-center gap-3">
+          <DAOWalletButton showVotingPower={true} showTier={true} />
+        </div>
       </div>
 
       {/* Tab Navigation */}

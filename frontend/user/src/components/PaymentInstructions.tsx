@@ -149,7 +149,7 @@ export const PaymentInstructions: React.FC<PaymentInstructionsProps> = ({
 
       const result = await createManualPayment(paymentData);
 
-      if (result.data.success) {
+      if (result?.data && (result.data as any).success) {
         setSubmitted(true);
         // Show success message for 3 seconds then close
         setTimeout(() => {

@@ -14,8 +14,11 @@
     },
     "c12ai-dao-b3bbb": {
       "hosting": {
-        "user-app": [
+        "admin-app": [
           "c12ai-dao-b3bbb"
+        ],
+        "user-app": [
+          "c12usd-user-app"
         ]
       }
     }

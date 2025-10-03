@@ -1,0 +1,555 @@
+// C12USD Stablecoin Database Schema
+// This schema manages mint/redeem operations, receipts, and audit trails
+
+generator client {
+  provider = "prisma-client-js"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// User accounts and authentication
+model User {
+  id        String   @id @default(cuid())
+  address   String   @unique // Ethereum address
+  email     String?  @unique
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  // Profile information
+  displayName String?
+  avatar      String? // IPFS hash or URL
+  bio         String?
+  location    String?
+  website     String?
+  twitter     String?
+  discord     String?
+
+  // Authentication providers
+  googleId   String? @unique
+  facebookId String? @unique
+  appleId    String? @unique
+
+  // User preferences
+  preferredChain     Chain?
+  emailNotifications Boolean @default(true)
+  pushNotifications  Boolean @default(true)
+  darkMode           Boolean @default(false)
+  language           String  @default("en")
+
+  // KYC and verification
+  kycStatus      KycStatus @default(PENDING)
+  kycSubmittedAt DateTime?
+  kycVerifiedAt  DateTime?
+  kycDocuments   Json? // Encrypted document references
+
+  // Relationships
+  mintReceipts   MintReceipt[]
+  redeemReceipts RedeemReceipt[]
+  daoMembership  DaoMembership?
+  userBadges     UserBadge[]
+  adminRoles     AdminRole[]
+  sessions       UserSession[]
+  manualPayments ManualPayment[]
+
+  @@map("users")
+}
+
+// Mint operations - when users deposit fiat and receive C12USD
+model MintReceipt {
+  id          String     @id @default(cuid())
+  userId      String
+  amount      Decimal    @db.Decimal(18, 6) // USD amount
+  tokenAmount Decimal    @db.Decimal(18, 18) // Token amount with 18 decimals
+  chain       Chain
+  status      MintStatus
+
+  // Payment information
+  paymentMethod PaymentMethod
+  paymentId     String        @unique // Stripe/Cash App transaction ID
+  paymentHash   String? // Payment processor hash
+
+  // Blockchain information
+  txHash      String? // Mint transaction hash
+  blockNumber Int?
+  gasUsed     Int?
+
+  // Signatures and verification
+  receipt   String // Signed receipt from signer service
+  signature String // Signature for the mint operation
+  nonce     String @unique
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("mint_receipts")
+}
+
+// Redeem operations - when users burn C12USD and receive fiat
+model RedeemReceipt {
+  id          String       @id @default(cuid())
+  userId      String
+  tokenAmount Decimal      @db.Decimal(18, 18) // Token amount burned
+  amount      Decimal      @db.Decimal(18, 6) // USD amount to receive
+  chain       Chain
+  status      RedeemStatus
+
+  // Payment information
+  paymentMethod  PaymentMethod
+  paymentAddress String // Bank account, Cash App handle, etc.
+
+  // Blockchain information
+  burnTxHash  String? // Burn transaction hash
+  blockNumber Int?
+  gasUsed     Int?
+
+  // Payout information
+  payoutId   String? @unique // Stripe/Cash App payout ID
+  payoutHash String?
+
+  // Signatures and verification
+  receipt   String // Signed receipt
+  signature String
+  nonce     String @unique
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  expiresAt   DateTime
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id])
+
+  @@map("redeem_receipts")
+}
+
+// Reserve tracking for Proof of Reserve
+model ReserveSnapshot {
+  id              String  @id @default(cuid())
+  totalUsdReserve Decimal @db.Decimal(18, 6) // Total USD in reserve
+  totalSupply     Decimal @db.Decimal(18, 18) // Total token supply across all chains
+
+  // Per-chain breakdown
+  bscSupply     Decimal @db.Decimal(18, 18)
+  polygonSupply Decimal @db.Decimal(18, 18)
+
+  // Reserve sources
+  stripeBalance  Decimal @db.Decimal(18, 6)
+  cashAppBalance Decimal @db.Decimal(18, 6)
+  bankBalance    Decimal @db.Decimal(18, 6)
+
+  // Compliance metrics
+  collateralRatio Decimal @db.Decimal(5, 4) // Should be >= 1.0000
+  isHealthy       Boolean @default(true)
+
+  // Blockchain data
+  blockNumber Int
+  timestamp   DateTime @default(now())
+
+  @@map("reserve_snapshots")
+}
+
+// Audit trail for all operations
+model AuditLog {
+  id         String      @id @default(cuid())
+  action     AuditAction
+  entityType String // "mint", "redeem", "reserve", etc.
+  entityId   String // ID of the related entity
+
+  // Context
+  userAddress  String?
+  adminAddress String?
+  ipAddress    String?
+  userAgent    String?
+
+  // Data
+  oldData  Json?
+  newData  Json?
+  metadata Json?
+
+  timestamp DateTime @default(now())
+
+  // Relationships - Note: These are optional because entityId could reference any entity type
+
+  @@map("audit_logs")
+}
+
+// System configuration and parameters
+model SystemConfig {
+  id          String   @id @default(cuid())
+  key         String   @unique
+  value       String
+  description String?
+  updatedBy   String // Admin address
+  updatedAt   DateTime @updatedAt
+
+  @@map("system_config")
+}
+
+// DAO Membership System
+model DaoMembership {
+  id             String         @id @default(cuid())
+  userId         String         @unique
+  membershipTier MembershipTier @default(BRONZE)
+  joinedAt       DateTime       @default(now())
+  lastActiveAt   DateTime       @updatedAt
+
+  // Membership metrics
+  totalStaked       Decimal @default(0) @db.Decimal(18, 18)
+  totalTransactions Int     @default(0)
+  totalVolume       Decimal @default(0) @db.Decimal(18, 6)
+  referralCount     Int     @default(0)
+
+  // Status
+  isActive  Boolean @default(true)
+  isPremium Boolean @default(false)
+  isFounder Boolean @default(false)
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("dao_memberships")
+}
+
+// Badge System
+model Badge {
+  id          String        @id @default(cuid())
+  name        String        @unique
+  description String
+  icon        String // IPFS hash or URL for badge icon
+  category    BadgeCategory
+  rarity      BadgeRarity   @default(COMMON)
+
+  // Requirements
+  requirements Json // Flexible requirements object
+  isActive     Boolean @default(true)
+
+  // Metadata
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  createdBy String // Admin address
+
+  // Relationships
+  userBadges UserBadge[]
+
+  @@map("badges")
+}
+
+// User Badge Junction Table
+model UserBadge {
+  id       String   @id @default(cuid())
+  userId   String
+  badgeId  String
+  earnedAt DateTime @default(now())
+
+  // Badge progress tracking
+  progress  Json? // Progress towards earning the badge
+  isVisible Boolean @default(true)
+
+  // Relationships
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  badge Badge @relation(fields: [badgeId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, badgeId])
+  @@map("user_badges")
+}
+
+// Admin Role System
+model AdminRole {
+  id        String        @id @default(cuid())
+  userId    String
+  role      AdminRoleType
+  grantedBy String // Admin address who granted the role
+  grantedAt DateTime      @default(now())
+  expiresAt DateTime? // Optional expiration
+  isActive  Boolean       @default(true)
+
+  // Permissions
+  permissions Json // Flexible permissions object
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, role])
+  @@map("admin_roles")
+}
+
+// User Sessions for authentication
+model UserSession {
+  id          String  @id @default(cuid())
+  userId      String
+  sessionHash String  @unique // Hashed session token
+  ipAddress   String?
+  userAgent   String?
+
+  // Session metadata
+  loginMethod AuthMethod
+  isActive    Boolean    @default(true)
+  lastUsedAt  DateTime   @updatedAt
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("user_sessions")
+}
+
+// Notification System
+model Notification {
+  id        String           @id @default(cuid())
+  userId    String? // null for global notifications
+  type      NotificationType
+  title     String
+  message   String
+  actionUrl String? // Optional URL for action
+
+  // Status
+  isRead   Boolean              @default(false)
+  isSent   Boolean              @default(false)
+  priority NotificationPriority @default(NORMAL)
+
+  // Metadata
+  metadata  Json? // Additional notification data
+  createdAt DateTime  @default(now())
+  readAt    DateTime?
+  sentAt    DateTime?
+
+  @@map("notifications")
+}
+
+// Referral System
+model Referral {
+  id           String @id @default(cuid())
+  referrerId   String // User who made the referral
+  refereeId    String // User who was referred
+  referralCode String @unique
+
+  // Status
+  isActive        Boolean @default(true)
+  isRewardClaimed Boolean @default(false)
+
+  // Rewards
+  referrerReward Decimal @default(0) @db.Decimal(18, 6)
+  refereeReward  Decimal @default(0) @db.Decimal(18, 6)
+
+  // Timestamps
+  createdAt   DateTime  @default(now())
+  completedAt DateTime?
+  claimedAt   DateTime?
+
+  @@map("referrals")
+}
+
+// Manual Payment System - For immediate token purchases
+model ManualPayment {
+  id          String @id @default(cuid())
+  referenceId String @unique // Format: C12-XXXXXX
+  userId      String
+
+  // Token details
+  tokenType       ManualPaymentTokenType
+  requestedAmount Decimal                @db.Decimal(18, 6) // USD amount
+  tokenAmount     Decimal                @db.Decimal(18, 18) // Token amount to receive
+  deliveryChain   Chain // BSC or POLYGON
+
+  // Payment details
+  paymentMethod ManualPaymentMethod
+  paymentAmount Decimal             @db.Decimal(18, 6)
+
+  // Cash App specific
+  cashAppCashtag String? // Sender's cashtag
+  cashAppProof   String? // Screenshot URL (Firebase Storage)
+
+  // Stablecoin specific
+  stablecoinType  StablecoinType? // BUSD, USDT, USDC
+  senderAddress   String? // Wallet address
+  txHash          String? // Blockchain TX hash
+  blockchainChain Chain? // Chain where payment was sent
+
+  // Status tracking
+  status ManualPaymentStatus @default(PENDING_SUBMISSION)
+
+  // Verification
+  verifiedBy      String? // Admin user ID
+  verifiedAt      DateTime?
+  rejectionReason String?
+
+  // Distribution
+  distributionTxHash String? // TX hash of token distribution
+  distributedAt      DateTime?
+
+  // Additional
+  userNotes  String? // User-provided notes
+  adminNotes String? // Admin-provided notes
+
+  // Timestamps
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  expiresAt DateTime // 24 hours from creation
+
+  // Relationships
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status, createdAt])
+  @@index([userId])
+  @@index([referenceId])
+  @@map("manual_payments")
+}
+
+// Enums
+enum Chain {
+  BSC
+  POLYGON
+}
+
+enum MintStatus {
+  PENDING
+  PAYMENT_RECEIVED
+  SIGNATURE_PENDING
+  MINTING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum RedeemStatus {
+  PENDING
+  BURN_PENDING
+  BURNED
+  PAYOUT_PENDING
+  COMPLETED
+  FAILED
+  EXPIRED
+}
+
+enum PaymentMethod {
+  STRIPE
+  CASHAPP
+  BANK_TRANSFER
+}
+
+enum AuditAction {
+  CREATE
+  UPDATE
+  DELETE
+  MINT
+  REDEEM
+  RESERVE_UPDATE
+  CONFIG_CHANGE
+  USER_LOGIN
+  USER_LOGOUT
+  BADGE_EARNED
+  MEMBERSHIP_UPGRADE
+  ADMIN_ACTION
+}
+
+// New Enums for Enhanced Features
+enum KycStatus {
+  PENDING
+  SUBMITTED
+  UNDER_REVIEW
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+enum MembershipTier {
+  BRONZE
+  SILVER
+  GOLD
+  PLATINUM
+  DIAMOND
+  FOUNDER
+}
+
+enum BadgeCategory {
+  TRANSACTION
+  LOYALTY
+  ACHIEVEMENT
+  SPECIAL
+  LIMITED_EDITION
+  FOUNDER
+}
+
+enum BadgeRarity {
+  COMMON
+  UNCOMMON
+  RARE
+  EPIC
+  LEGENDARY
+}
+
+enum AdminRoleType {
+  SUPER_ADMIN
+  FINANCE_ADMIN
+  DAO_ADMIN
+  SUPPORT_ADMIN
+  MODERATOR
+  AUDITOR
+}
+
+enum AuthMethod {
+  METAMASK
+  GOOGLE
+  FACEBOOK
+  APPLE
+  EMAIL
+  PASSKEY
+}
+
+enum NotificationType {
+  TRANSACTION
+  SYSTEM
+  PROMOTIONAL
+  SECURITY
+  DAO_GOVERNANCE
+  BADGE_EARNED
+  MEMBERSHIP_UPDATE
+}
+
+enum NotificationPriority {
+  LOW
+  NORMAL
+  HIGH
+  URGENT
+}
+
+// Manual Payment System Enums
+enum ManualPaymentTokenType {
+  C12USD
+  C12DAO
+}
+
+enum ManualPaymentMethod {
+  CASH_APP
+  STABLECOIN
+}
+
+enum StablecoinType {
+  BUSD
+  USDT
+  USDC
+}
+
+enum ManualPaymentStatus {
+  PENDING_SUBMISSION // User hasn't submitted payment proof yet
+  PENDING_VERIFICATION // Submitted, awaiting admin review
+  VERIFYING // Admin is reviewing
+  APPROVED // Approved, awaiting distribution
+  DISTRIBUTING // Tokens being minted/transferred
+  COMPLETED // Tokens delivered
+  REJECTED // Payment rejected
+  EXPIRED // Submission window expired (24h)
+  REFUNDED // Payment refunded
+}

@@ -15,10 +15,12 @@ import {
   Shield,
   AlertCircle
 } from 'lucide-react';
-import { useAuth } from '../../../contexts/AuthContext';
+import { useAccount, useChainId, useSwitchChain } from 'wagmi';
+import { bsc, polygon } from 'wagmi/chains';
 import { GlassCard } from '../../../components/ui/GlassCard';
 import { GlassButton } from '../../../components/ui/GlassButton';
 import { Badge } from '../../../components/ui/Badge';
+import { WalletButton } from '../../../components/ui/WalletButton';
 import toast from 'react-hot-toast';
 
 // Mock wallet data
@@ -62,19 +64,27 @@ const mockWalletData = {
 };
 
 export default function WalletPage() {
-  const { walletConnection, switchChain } = useAuth();
+  const { address, isConnected } = useAccount();
+  const chainId = useChainId();
+  const { switchChain } = useSwitchChain();
   const [selectedNetwork, setSelectedNetwork] = useState<'BSC' | 'POLYGON'>('BSC');
   const [showQR, setShowQR] = useState(false);
 
   const copyAddress = () => {
-    navigator.clipboard.writeText(mockWalletData.address);
-    toast.success('Address copied to clipboard');
+    if (address) {
+      navigator.clipboard.writeText(address);
+      toast.success('Address copied to clipboard');
+    } else {
+      navigator.clipboard.writeText(mockWalletData.address);
+      toast.success('Address copied to clipboard');
+    }
   };
 
   const handleNetworkSwitch = async (network: 'BSC' | 'POLYGON') => {
     try {
       if (switchChain) {
-        await switchChain(network);
+        const targetChainId = network === 'BSC' ? bsc.id : polygon.id;
+        await switchChain({ chainId: targetChainId });
       }
       setSelectedNetwork(network);
       toast.success(`Switched to ${network}`);
@@ -84,6 +94,7 @@ export default function WalletPage() {
   };
 
   const currentBalance = mockWalletData.balances[selectedNetwork];
+  const displayAddress = address || mockWalletData.address;
 
   return (
     <div className="space-y-8">
@@ -109,7 +120,7 @@ export default function WalletPage() {
       </div>
 
       {/* Wallet Connection Status */}
-      {walletConnection ? (
+      {isConnected && address ? (
         <GlassCard className="p-6">
           <div className="flex items-center gap-4">
             <div className="w-12 h-12 bg-brand-success/10 rounded-xl flex items-center justify-center">
@@ -122,12 +133,17 @@ export default function WalletPage() {
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <span className="text-text-secondary text-sm font-mono">
-                  {mockWalletData.address.slice(0, 6)}...{mockWalletData.address.slice(-4)}
+                  {displayAddress.slice(0, 6)}...{displayAddress.slice(-4)}
                 </span>
                 <GlassButton variant="ghost" size="sm" onClick={copyAddress}>
                   <Copy className="w-3 h-3" />
                 </GlassButton>
-                <GlassButton variant="ghost" size="sm">
+                <GlassButton variant="ghost" size="sm" onClick={() => {
+                  const explorerUrl = chainId === bsc.id
+                    ? `https://bscscan.com/address/${address}`
+                    : `https://polygonscan.com/address/${address}`;
+                  window.open(explorerUrl, '_blank');
+                }}>
                   <ExternalLink className="w-3 h-3" />
                 </GlassButton>
               </div>
@@ -146,9 +162,7 @@ export default function WalletPage() {
                 Connect your wallet to view balances and make transactions
               </div>
             </div>
-            <GlassButton variant="primary">
-              Connect Wallet
-            </GlassButton>
+            <WalletButton />
           </div>
         </GlassCard>
       )}
