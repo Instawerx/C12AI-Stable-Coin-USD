@@ -48,7 +48,7 @@ export async function sendNotification(userId: string, notificationData: Notific
             ...notificationData.data
           },
           android: {
-            priority: notificationData.priority === 'high' ? 'high' : 'normal',
+            priority: (notificationData.priority === 'high' ? 'high' : 'normal') as 'high' | 'normal',
             notification: {
               sound: notificationData.sound || 'default',
               clickAction: 'FLUTTER_NOTIFICATION_CLICK'
@@ -78,7 +78,7 @@ export async function sendNotification(userId: string, notificationData: Notific
 
           // Remove invalid tokens
           if (failedTokens.length > 0) {
-            const validTokens = fcmTokens.filter(token => !failedTokens.includes(token));
+            const validTokens = fcmTokens.filter((token: string) => !failedTokens.includes(token));
             await firestore.collection('users').doc(userId).update({
               fcmTokens: validTokens
             });

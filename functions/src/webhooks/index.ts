@@ -6,14 +6,15 @@ import { createAuditLog } from '../utils/audit';
 const firestore = getFirestoreInstance();
 
 // Stripe webhook handler
-export const stripeWebhook = functions.https.onRequest(async (req, res) => {
+export const stripeWebhook = functions.https.onRequest(async (req, res): Promise<void> => {
   try {
     const sig = req.headers['stripe-signature'] as string;
     const webhookSecret = functions.config().stripe?.webhook_secret;
 
     if (!sig || !webhookSecret) {
       console.error('Missing Stripe signature or webhook secret');
-      return res.status(400).send('Missing signature or webhook secret');
+      res.status(400).send('Missing signature or webhook secret');
+      return;
     }
 
     // Verify webhook signature (simplified)
@@ -41,12 +42,13 @@ export const stripeWebhook = functions.https.onRequest(async (req, res) => {
 });
 
 // Cash App webhook handler
-export const cashAppWebhook = functions.https.onRequest(async (req, res) => {
+export const cashAppWebhook = functions.https.onRequest(async (req, res): Promise<void> => {
   try {
     const webhookSecret = functions.config().cashapp?.webhook_secret;
 
     if (!webhookSecret) {
-      return res.status(400).send('Missing webhook secret');
+      res.status(400).send('Missing webhook secret');
+      return;
     }
 
     // Verify webhook signature (simplified)

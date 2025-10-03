@@ -12,6 +12,7 @@ import { notificationFunctions } from './notifications';
 import { webhookFunctions } from './webhooks';
 import { monitoringFunctions } from './monitoring';
 import { backupFunctions } from './backup';
+import { manualPaymentFunctions } from './manualPayments';
 
 // Initialize Firebase Admin
 initializeApp();
@@ -28,6 +29,7 @@ export const notifications = notificationFunctions;
 export const webhooks = webhookFunctions;
 export const monitoring = monitoringFunctions;
 export const backup = backupFunctions;
+export const manualPayments = manualPaymentFunctions;
 
 // Health check endpoint
 export const healthCheck = functions.https.onRequest(async (req, res) => {

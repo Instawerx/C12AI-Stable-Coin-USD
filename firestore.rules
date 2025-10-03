@@ -49,6 +49,22 @@ service cloud.firestore {
         (request.auth.uid == userId || request.auth.token.admin == true);
     }
 
+    // Manual Payments - users can read their own, admins can read all
+    match /manual_payments/{paymentId} {
+      allow read: if request.auth != null &&
+        (resource.data.userId == request.auth.uid ||
+         request.auth.token.adminRole in ['SUPER_ADMIN', 'FINANCE_ADMIN']);
+
+      // Only callable functions can write
+      allow write: if false;
+    }
+
+    // Helper function to check admin role
+    function isAdmin() {
+      return request.auth != null &&
+        request.auth.token.adminRole in ['SUPER_ADMIN', 'FINANCE_ADMIN'];
+    }
+
     // Default deny all other requests
     match /{document=**} {
       allow read, write: if false;

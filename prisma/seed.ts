@@ -54,6 +54,55 @@ async function main() {
       value: 'true',
       description: 'Whether circuit breaker is active',
       updatedBy: '0x0000000000000000000000000000000000000000'
+    },
+    // Manual Payment System Configuration
+    {
+      key: 'C12USD_PRICE_USD',
+      value: '1.00',
+      description: 'C12USD price in USD (fixed 1:1 peg)',
+      updatedBy: 'system'
+    },
+    {
+      key: 'C12DAO_PRICE_USD',
+      value: '3.30',
+      description: 'C12DAO price in USD (current market price)',
+      updatedBy: 'system'
+    },
+    {
+      key: 'MIN_PURCHASE_USD',
+      value: '10.00',
+      description: 'Minimum purchase amount in USD',
+      updatedBy: 'system'
+    },
+    {
+      key: 'MAX_PURCHASE_USD',
+      value: '50000.00',
+      description: 'Maximum purchase amount without enhanced KYC',
+      updatedBy: 'system'
+    },
+    {
+      key: 'MANUAL_PAYMENT_EXPIRY_HOURS',
+      value: '24',
+      description: 'Hours until manual payment submission expires',
+      updatedBy: 'system'
+    },
+    {
+      key: 'ADMIN_WALLET_ADDRESS',
+      value: '0x7903c63CB9f42284d03BC2a124474760f9C1390b',
+      description: 'Admin wallet for receiving payments',
+      updatedBy: 'system'
+    },
+    {
+      key: 'CASH_APP_CASHTAG',
+      value: '$C12Ai',
+      description: 'Cash App cashtag for payments',
+      updatedBy: 'system'
+    },
+    {
+      key: 'CASH_APP_URL',
+      value: 'https://cash.app/$C12Ai',
+      description: 'Cash App payment URL',
+      updatedBy: 'system'
     }
   ];
 

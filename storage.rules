@@ -56,6 +56,20 @@ service firebase.storage {
         request.auth.token.admin == true;
     }
 
+    // Payment proof uploads (screenshots, documents)
+    match /payment-proofs/{userId}/{filename} {
+      // Users can upload their own payment proofs
+      allow write: if request.auth != null &&
+        request.auth.uid == userId &&
+        request.resource.size < 10 * 1024 * 1024 && // 10MB limit
+        request.resource.contentType.matches('image/.*');
+
+      // Admins and the user can read proofs
+      allow read: if request.auth != null &&
+        (request.auth.uid == userId ||
+         request.auth.token.adminRole in ['SUPER_ADMIN', 'FINANCE_ADMIN']);
+    }
+
     // Default deny all other requests
     match /{allPaths=**} {
       allow read, write: if false;
