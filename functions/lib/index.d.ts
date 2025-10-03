@@ -1,4 +1,5 @@
 import * as functions from 'firebase-functions';
+import * as daoFunctions from './dao/membershipManager';
 export declare const auth: {
     createCustomToken: functions.HttpsFunction & functions.Runnable<any>;
     logout: functions.HttpsFunction & functions.Runnable<any>;
@@ -48,5 +49,6 @@ export declare const manualPayments: {
     listPayments: functions.HttpsFunction & functions.Runnable<any>;
     getAnalytics: functions.HttpsFunction & functions.Runnable<any>;
 };
+export declare const dao: typeof daoFunctions;
 export declare const healthCheck: functions.HttpsFunction;
 //# sourceMappingURL=index.d.ts.map

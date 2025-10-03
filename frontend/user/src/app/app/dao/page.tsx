@@ -239,7 +239,16 @@ export default function DaoPage() {
         </div>
 
         <div className="flex items-center gap-3">
-          <DAOWalletButton showVotingPower={true} showTier={true} />
+          {!user?.daoMembership ? (
+            <Link href="/app/dao/join">
+              <GlassButton variant="primary">
+                <Plus className="w-4 h-4" />
+                Join DAO
+              </GlassButton>
+            </Link>
+          ) : (
+            <DAOWalletButton showVotingPower={true} showTier={true} />
+          )}
         </div>
       </div>
 

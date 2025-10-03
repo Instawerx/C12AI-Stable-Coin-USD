@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.healthCheck = exports.manualPayments = exports.backup = exports.monitoring = exports.webhooks = exports.notifications = exports.reserves = exports.compliance = exports.transactions = exports.auth = void 0;
+exports.healthCheck = exports.dao = exports.manualPayments = exports.backup = exports.monitoring = exports.webhooks = exports.notifications = exports.reserves = exports.compliance = exports.transactions = exports.auth = void 0;
 const functions = __importStar(require("firebase-functions"));
 const admin = __importStar(require("firebase-admin"));
 const firebase_1 = require("./config/firebase");
@@ -48,6 +48,7 @@ const webhooks_1 = require("./webhooks");
 const monitoring_1 = require("./monitoring");
 const backup_1 = require("./backup");
 const manualPayments_1 = require("./manualPayments");
+const daoFunctions = __importStar(require("./dao/membershipManager"));
 // Initialize Firebase Admin
 (0, firebase_1.initializeApp)();
 // Setup scheduled functions
@@ -62,6 +63,7 @@ exports.webhooks = webhooks_1.webhookFunctions;
 exports.monitoring = monitoring_1.monitoringFunctions;
 exports.backup = backup_1.backupFunctions;
 exports.manualPayments = manualPayments_1.manualPaymentFunctions;
+exports.dao = daoFunctions;
 // Health check endpoint
 exports.healthCheck = functions.https.onRequest(async (req, res) => {
     try {

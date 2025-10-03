@@ -19,6 +19,8 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useAccount, useBalance, useChainId } from 'wagmi';
+import { WalletButton } from '../../../components/ui/WalletButton';
 import { GlassCard } from '../../../components/ui/GlassCard';
 import { GlassButton } from '../../../components/ui/GlassButton';
 import { Badge } from '../../../components/ui/Badge';
@@ -88,6 +90,9 @@ const mockData = {
 
 export default function DashboardPage() {
   const { user } = useAuth();
+  const { address, isConnected } = useAccount();
+  const chainId = useChainId();
+  const { data: balance } = useBalance({ address });
   const [selectedTimeframe, setSelectedTimeframe] = useState('7D');
 
   const timeframes = ['24H', '7D', '30D', '90D'];
@@ -103,9 +108,15 @@ export default function DashboardPage() {
           <p className="text-text-secondary dark:text-text-dark-secondary mt-1">
             Here's your C12USD portfolio overview
           </p>
+          {isConnected && address && (
+            <p className="text-sm text-text-secondary mt-1 font-mono">
+              {address.slice(0, 6)}...{address.slice(-4)} • {chainId === 56 ? 'BSC' : chainId === 137 ? 'Polygon' : 'Unknown Chain'}
+            </p>
+          )}
         </div>
 
         <div className="flex items-center gap-3">
+          {!isConnected && <WalletButton />}
           <GlassButton variant="secondary">
             <Download className="w-4 h-4" />
             Export

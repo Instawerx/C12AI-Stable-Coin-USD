@@ -13,6 +13,7 @@ import { webhookFunctions } from './webhooks';
 import { monitoringFunctions } from './monitoring';
 import { backupFunctions } from './backup';
 import { manualPaymentFunctions } from './manualPayments';
+import * as daoFunctions from './dao/membershipManager';
 
 // Initialize Firebase Admin
 initializeApp();
@@ -30,6 +31,7 @@ export const webhooks = webhookFunctions;
 export const monitoring = monitoringFunctions;
 export const backup = backupFunctions;
 export const manualPayments = manualPaymentFunctions;
+export const dao = daoFunctions;
 
 // Health check endpoint
 export const healthCheck = functions.https.onRequest(async (req, res) => {
