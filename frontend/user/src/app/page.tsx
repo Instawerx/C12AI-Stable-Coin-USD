@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useState } from 'react';
 import {
   ArrowRight,
   Shield,
@@ -18,6 +18,10 @@ import { GlassCard } from '../components/ui/GlassCard';
 import { GlassButton } from '../components/ui/GlassButton';
 import { GlassNavbar } from '../components/ui/GlassNavbar';
 import { WalletButton } from '../components/ui/WalletButton';
+import { TokenProductCard } from '../components/TokenProductCard';
+import { TokenSelectorDropdown, type TokenType } from '../components/ui/TokenSelectorDropdown';
+import { BuyTokensModal } from '../components/BuyTokensModal';
+import { useAccount } from 'wagmi';
 
 const features = [
   {
@@ -68,6 +72,14 @@ const navItems = [
 
 export default function HomePage() {
   const { user } = useAuth();
+  const { address } = useAccount();
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
+  const [selectedToken, setSelectedToken] = useState<TokenType>('C12USD');
+
+  const handleBuyClick = (tokenType: TokenType) => {
+    setSelectedToken(tokenType);
+    setIsBuyModalOpen(true);
+  };
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
@@ -84,6 +96,9 @@ export default function HomePage() {
         }
         actions={
           <div className="flex items-center gap-3">
+            {/* Token Selector Dropdown */}
+            <TokenSelectorDropdown onBuyClick={handleBuyClick} />
+
             {/* MetaMask Wallet Button */}
             <WalletButton />
 
@@ -110,6 +125,14 @@ export default function HomePage() {
             )}
           </div>
         }
+      />
+
+      {/* Buy Tokens Modal */}
+      <BuyTokensModal
+        isOpen={isBuyModalOpen}
+        onClose={() => setIsBuyModalOpen(false)}
+        userAddress={address}
+        initialTokenType={selectedToken}
       />
 
       {/* Hero Section */}
@@ -178,6 +201,25 @@ export default function HomePage() {
                 <p className="text-gray-600">{feature.description}</p>
               </GlassCard>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Buy Tokens Section */}
+      <section className="py-24 bg-gradient-to-br from-blue-50/50 to-purple-50/50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="text-center mb-12">
+            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+              Start Using C12USD Today
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Purchase tokens instantly with Cash App or stablecoins. Choose the right token for your needs.
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 gap-8 max-w-5xl mx-auto">
+            <TokenProductCard tokenType="C12USD" />
+            <TokenProductCard tokenType="C12DAO" />
           </div>
         </div>
       </section>

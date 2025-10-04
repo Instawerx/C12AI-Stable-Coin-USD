@@ -15,7 +15,8 @@ import {
   ChevronRight,
   Plus,
   Send,
-  Download
+  Download,
+  ShoppingCart
 } from 'lucide-react';
 import Link from 'next/link';
 import { useAuth } from '../../../contexts/AuthContext';
@@ -24,6 +25,12 @@ import { WalletButton } from '../../../components/ui/WalletButton';
 import { GlassCard } from '../../../components/ui/GlassCard';
 import { GlassButton } from '../../../components/ui/GlassButton';
 import { Badge } from '../../../components/ui/Badge';
+import { BuyTokensModal } from '../../../components/BuyTokensModal';
+import { BronzeDashboard } from '../../../components/dashboards/BronzeDashboard';
+import { SilverDashboard } from '../../../components/dashboards/SilverDashboard';
+import { GoldDashboard } from '../../../components/dashboards/GoldDashboard';
+import { PlatinumDashboard } from '../../../components/dashboards/PlatinumDashboard';
+import { DiamondDashboard } from '../../../components/dashboards/DiamondDashboard';
 
 // Helper function to map rarity to badge variant
 const rarityToVariant = (rarity: string) => {
@@ -94,9 +101,39 @@ export default function DashboardPage() {
   const chainId = useChainId();
   const { data: balance } = useBalance({ address });
   const [selectedTimeframe, setSelectedTimeframe] = useState('7D');
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
 
   const timeframes = ['24H', '7D', '30D', '90D'];
 
+  // Get user's membership tier and route to appropriate dashboard
+  const membershipTier = user?.daoMembership?.membershipTier?.toLowerCase();
+
+  // Render tier-specific dashboard if user has DAO membership
+  if (user?.daoMembership && membershipTier) {
+    const tierProps = {
+      user,
+      stats: mockData.portfolio,
+      recentTransactions: mockData.recentTransactions
+    };
+
+    switch (membershipTier) {
+      case 'bronze':
+        return <BronzeDashboard {...tierProps} />;
+      case 'silver':
+        return <SilverDashboard {...tierProps} />;
+      case 'gold':
+        return <GoldDashboard {...tierProps} />;
+      case 'platinum':
+        return <PlatinumDashboard {...tierProps} />;
+      case 'diamond':
+        return <DiamondDashboard {...tierProps} />;
+      default:
+        // Fall through to default dashboard
+        break;
+    }
+  }
+
+  // Default dashboard for non-DAO members
   return (
     <div className="space-y-8">
       {/* Header */}
@@ -187,6 +224,15 @@ export default function DashboardPage() {
           <GlassCard className="p-6">
             <h3 className="text-lg font-semibold mb-4">Quick Actions</h3>
             <div className="space-y-3">
+              <GlassButton
+                variant="primary"
+                className="w-full justify-start"
+                onClick={() => setIsBuyModalOpen(true)}
+              >
+                <ShoppingCart className="w-4 h-4 text-white" />
+                Buy Tokens
+                <ChevronRight className="w-4 h-4 ml-auto" />
+              </GlassButton>
               <Link href="/app/transactions?type=mint">
                 <GlassButton variant="secondary" className="w-full justify-start">
                   <ArrowDownLeft className="w-4 h-4 text-brand-success" />
@@ -398,6 +444,13 @@ export default function DashboardPage() {
           <div className="text-sm text-text-secondary">Badges Earned</div>
         </GlassCard>
       </div>
+
+      {/* Buy Tokens Modal */}
+      <BuyTokensModal
+        isOpen={isBuyModalOpen}
+        onClose={() => setIsBuyModalOpen(false)}
+        userAddress={address}
+      />
     </div>
   );
 }

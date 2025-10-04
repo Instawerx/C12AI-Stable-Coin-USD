@@ -24,6 +24,7 @@ import { GlassCard } from '../../../components/ui/GlassCard';
 import { GlassButton } from '../../../components/ui/GlassButton';
 import { Badge } from '../../../components/ui/Badge';
 import { DAOWalletButton } from '../../../components/ui/DAOWalletButton';
+import { TokenProductCard } from '../../../components/TokenProductCard';
 
 // Helper function to map rarity to badge variant
 const rarityToVariant = (rarity: string) => {
@@ -307,6 +308,45 @@ export default function DaoPage() {
               </div>
               <div className="text-2xl font-bold">{mockDaoData.stats.treasuryValue}</div>
               <div className="text-sm text-text-secondary">Treasury Value</div>
+            </GlassCard>
+          </div>
+
+          {/* Buy C12DAO Section */}
+          <div className="grid lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-2">
+              <TokenProductCard tokenType="C12DAO" compact={false} />
+            </div>
+            <GlassCard className="p-6">
+              <h3 className="text-lg font-semibold mb-4">Why Buy C12DAO?</h3>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-brand-primary/10 rounded-lg flex items-center justify-center mt-0.5">
+                    <Vote className="w-4 h-4 text-brand-primary" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Governance Rights</div>
+                    <div className="text-sm text-text-secondary">Vote on proposals and shape the future</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-brand-primary/10 rounded-lg flex items-center justify-center mt-0.5">
+                    <Gift className="w-4 h-4 text-brand-primary" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Rewards & Benefits</div>
+                    <div className="text-sm text-text-secondary">Earn rewards based on your tier</div>
+                  </div>
+                </div>
+                <div className="flex items-start gap-3">
+                  <div className="w-6 h-6 bg-brand-primary/10 rounded-lg flex items-center justify-center mt-0.5">
+                    <Zap className="w-4 h-4 text-brand-primary" />
+                  </div>
+                  <div>
+                    <div className="font-medium">Exclusive Access</div>
+                    <div className="text-sm text-text-secondary">Priority features and early access</div>
+                  </div>
+                </div>
+              </div>
             </GlassCard>
           </div>
 

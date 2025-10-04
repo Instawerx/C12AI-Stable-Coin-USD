@@ -29,6 +29,7 @@ interface BuyTokensModalProps {
   isOpen: boolean;
   onClose: () => void;
   userAddress?: string;
+  initialTokenType?: TokenType;
 }
 
 type Step = 'select-token' | 'payment-method' | 'instructions';
@@ -38,10 +39,11 @@ export const BuyTokensModal: React.FC<BuyTokensModalProps> = ({
   isOpen,
   onClose,
   userAddress,
+  initialTokenType = 'C12USD',
 }) => {
   // State
   const [step, setStep] = useState<Step>('select-token');
-  const [tokenType, setTokenType] = useState<TokenType>('C12USD');
+  const [tokenType, setTokenType] = useState<TokenType>(initialTokenType);
   const [amount, setAmount] = useState('');
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('cash-app');
   const [chain, setChain] = useState<ChainType>('BSC');
@@ -51,11 +53,18 @@ export const BuyTokensModal: React.FC<BuyTokensModalProps> = ({
   // Reset state when modal closes
   const handleClose = () => {
     setStep('select-token');
-    setTokenType('C12USD');
+    setTokenType(initialTokenType);
     setAmount('');
     setError('');
     onClose();
   };
+
+  // Update token type when initialTokenType changes
+  React.useEffect(() => {
+    if (isOpen) {
+      setTokenType(initialTokenType);
+    }
+  }, [isOpen, initialTokenType]);
 
   // Calculate preview
   const tokenAmount =

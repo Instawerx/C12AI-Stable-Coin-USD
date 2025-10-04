@@ -52,8 +52,8 @@ declare global {
 
 // Web3 authentication service
 export class Web3AuthService {
-  private static provider: ethers.providers.Web3Provider | null = null;
-  private static signer: ethers.Signer | null = null;
+  private static provider: ethers.BrowserProvider | null = null;
+  private static signer: ethers.JsonRpcSigner | null = null;
 
   // Check if MetaMask is installed
   static isMetaMaskInstalled(): boolean {
@@ -88,8 +88,8 @@ export class Web3AuthService {
       });
 
       // Create provider and signer
-      this.provider = new ethers.providers.Web3Provider(window.ethereum!);
-      this.signer = this.provider.getSigner();
+      this.provider = new ethers.BrowserProvider(window.ethereum!);
+      this.signer = await this.provider.getSigner();
 
       const connection: WalletConnection = {
         address: accounts[0],
@@ -137,8 +137,8 @@ export class Web3AuthService {
       });
 
       if (!this.provider) {
-        this.provider = new ethers.providers.Web3Provider(window.ethereum!);
-        this.signer = this.provider.getSigner();
+        this.provider = new ethers.BrowserProvider(window.ethereum!);
+        this.signer = await this.provider.getSigner();
       }
 
       return {
@@ -240,7 +240,7 @@ export class Web3AuthService {
       );
 
       const balance = await tokenContract.balanceOf(userAddress);
-      return ethers.utils.formatEther(balance);
+      return ethers.formatEther(balance);
     } catch (error) {
       console.error('Error getting token balance:', error);
       return '0';
@@ -255,7 +255,7 @@ export class Web3AuthService {
       }
 
       const balance = await this.provider.getBalance(userAddress);
-      return ethers.utils.formatEther(balance);
+      return ethers.formatEther(balance);
     } catch (error) {
       console.error('Error getting native balance:', error);
       return '0';
@@ -336,7 +336,7 @@ Nonce: ${nonce}`;
   // Verify signed message
   static verifySignature(message: string, signature: string, expectedAddress: string): boolean {
     try {
-      const recoveredAddress = ethers.utils.verifyMessage(message, signature);
+      const recoveredAddress = ethers.verifyMessage(message, signature);
       return recoveredAddress.toLowerCase() === expectedAddress.toLowerCase();
     } catch (error) {
       console.error('Error verifying signature:', error);

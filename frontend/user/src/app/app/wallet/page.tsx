@@ -13,7 +13,8 @@ import {
   Plus,
   QrCode,
   Shield,
-  AlertCircle
+  AlertCircle,
+  ShoppingCart
 } from 'lucide-react';
 import { useAccount, useChainId, useSwitchChain } from 'wagmi';
 import { bsc, polygon } from 'wagmi/chains';
@@ -21,6 +22,7 @@ import { GlassCard } from '../../../components/ui/GlassCard';
 import { GlassButton } from '../../../components/ui/GlassButton';
 import { Badge } from '../../../components/ui/Badge';
 import { WalletButton } from '../../../components/ui/WalletButton';
+import { BuyTokensModal } from '../../../components/BuyTokensModal';
 import toast from 'react-hot-toast';
 
 // Mock wallet data
@@ -69,6 +71,7 @@ export default function WalletPage() {
   const { switchChain } = useSwitchChain();
   const [selectedNetwork, setSelectedNetwork] = useState<'BSC' | 'POLYGON'>('BSC');
   const [showQR, setShowQR] = useState(false);
+  const [isBuyModalOpen, setIsBuyModalOpen] = useState(false);
 
   const copyAddress = () => {
     if (address) {
@@ -108,6 +111,10 @@ export default function WalletPage() {
         </div>
 
         <div className="flex items-center gap-3">
+          <GlassButton variant="primary" onClick={() => setIsBuyModalOpen(true)}>
+            <ShoppingCart className="w-4 h-4" />
+            Buy Tokens
+          </GlassButton>
           <GlassButton variant="secondary" onClick={() => setShowQR(true)}>
             <QrCode className="w-4 h-4" />
             Receive
@@ -362,6 +369,13 @@ export default function WalletPage() {
           </motion.div>
         </div>
       )}
+
+      {/* Buy Tokens Modal */}
+      <BuyTokensModal
+        isOpen={isBuyModalOpen}
+        onClose={() => setIsBuyModalOpen(false)}
+        userAddress={address}
+      />
     </div>
   );
 }

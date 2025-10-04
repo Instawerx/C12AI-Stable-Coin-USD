@@ -1,9 +1,10 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import { ChevronLeft, ChevronRight, Check } from 'lucide-react';
+import { useAuth } from '../../../../contexts/AuthContext';
 import { GlassCard } from '../../../../components/ui/GlassCard';
 import { GlassButton } from '../../../../components/ui/GlassButton';
 import { OnboardingStep1 } from '../../../../components/dao/OnboardingStep1';
@@ -54,12 +55,20 @@ const steps = [
 
 export default function JoinDAOPage() {
   const router = useRouter();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(1);
   const [onboardingData, setOnboardingData] = useState<OnboardingData>({
     roleApplication: {},
     profileData: {},
     purchaseData: {},
   });
+
+  // Redirect existing members to DAO page
+  useEffect(() => {
+    if (user?.daoMembership) {
+      router.push('/app/dao');
+    }
+  }, [user, router]);
 
   const updateRoleApplication = (data: Partial<RoleApplication>) => {
     setOnboardingData(prev => ({

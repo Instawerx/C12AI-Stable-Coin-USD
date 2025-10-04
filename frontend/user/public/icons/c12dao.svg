@@ -1,0 +1,38 @@
+<svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Outer Circle with Gradient Border -->
+  <circle cx="100" cy="100" r="85" stroke="url(#borderGradient)" stroke-width="8" fill="none"/>
+
+  <!-- Droplet Shape with Blue-Pink Gradient -->
+  <defs>
+    <linearGradient id="dropletGradient" x1="100" y1="50" x2="100" y2="140" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="50%" stop-color="#8B5CF6"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+
+    <linearGradient id="borderGradient" x1="15" y1="15" x2="185" y2="185" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#3B82F6"/>
+      <stop offset="100%" stop-color="#EC4899"/>
+    </linearGradient>
+
+    <radialGradient id="highlight" cx="50%" cy="30%" r="50%">
+      <stop offset="0%" stop-color="#FFFFFF" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Droplet Path -->
+  <path
+    d="M100 50 C120 70, 130 90, 130 110 C130 128.3, 116.6 142, 100 142 C83.4 142, 70 128.3, 70 110 C70 90, 80 70, 100 50 Z"
+    fill="url(#dropletGradient)"
+  />
+
+  <!-- Highlight on Droplet -->
+  <ellipse
+    cx="90"
+    cy="85"
+    rx="25"
+    ry="35"
+    fill="url(#highlight)"
+  />
+</svg>

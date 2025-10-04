@@ -91,9 +91,9 @@ export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
             className={cn(
               baseClasses,
               variantClasses[variant],
-              leftIcon && 'pl-12',
-              rightIcon && 'pr-12',
-              error && 'border-brand-error focus:border-brand-error focus:ring-brand-error/20',
+              leftIcon ? 'pl-12' : '',
+              rightIcon ? 'pr-12' : '',
+              error ? 'border-brand-error focus:border-brand-error focus:ring-brand-error/20' : '',
               className
             )}
             placeholder={label}
@@ -109,7 +109,7 @@ export const GlassInput = forwardRef<HTMLInputElement, GlassInputProps>(
               className={cn(
                 'absolute left-4 transition-all duration-300 ease-out pointer-events-none',
                 'text-text-secondary dark:text-text-dark-secondary',
-                leftIcon && 'left-12',
+                leftIcon ? 'left-12' : '',
                 isLabelFloating
                   ? 'top-2 text-xs text-brand-primary scale-90 origin-left'
                   : 'top-1/2 text-base transform -translate-y-1/2'

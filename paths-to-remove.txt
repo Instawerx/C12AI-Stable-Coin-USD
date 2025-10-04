@@ -1,0 +1,9 @@
+frontend/user/.next/
+frontend/.next/
+deploy/gcp/terraform/.terraform/
+terraform/environments/production/.terraform/
+artifacts/
+functions/generated/prisma/
+*.pack
+*.pack.gz
+*.pack.old

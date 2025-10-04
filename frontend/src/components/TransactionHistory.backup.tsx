@@ -147,8 +147,8 @@ const TransactionHistory: React.FC = () => {
       tx.amount,
       tx.status,
       tx.hash || '',
-      tx.fromAddress || '',
-      tx.toAddress || ''
+      'fromAddress' in tx ? tx.fromAddress || '' : '',
+      'toAddress' in tx ? tx.toAddress || '' : ''
     ]);
 
     const csvContent = [

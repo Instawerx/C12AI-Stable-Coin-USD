@@ -30,7 +30,14 @@ const Settings: React.FC = () => {
   const [marketingEmails, setMarketingEmails] = useState(false);
 
   // API Keys state
-  const [apiKeys, setApiKeys] = useState([
+  const [apiKeys, setApiKeys] = useState<Array<{
+    id: string;
+    name: string;
+    key: string;
+    created: Date;
+    lastUsed: Date | null;
+    permissions: string[];
+  }>>([
     {
       id: '1',
       name: 'Trading Bot API',

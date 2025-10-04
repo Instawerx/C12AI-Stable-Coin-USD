@@ -155,7 +155,7 @@ export async function addTokenToMetaMask(
           decimals: tokenDecimals,
           image: tokenImage,
         },
-      },
+      } as any,
     });
 
     return wasAdded;
@@ -186,13 +186,4 @@ export async function switchChainInMetaMask(chainId: number) {
 }
 
 // TypeScript augmentation for window.ethereum
-declare global {
-  interface Window {
-    ethereum?: {
-      isMetaMask?: boolean;
-      request: (args: { method: string; params?: any[] | object }) => Promise<any>;
-      on?: (event: string, callback: (...args: any[]) => void) => void;
-      removeListener?: (event: string, callback: (...args: any[]) => void) => void;
-    };
-  }
-}
+// (Already declared in shared/auth/web3.ts)
